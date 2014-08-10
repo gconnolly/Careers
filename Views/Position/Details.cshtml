@@ -1,0 +1,19 @@
+﻿
+@{
+    ViewBag.Title = "Careers";
+}
+
+@model Careers.Models.Position
+
+<h2>@Html.DisplayFor(score => Model.Title)</h2>
+
+<div>
+    <p>@Model.Description</p>
+    <ul>
+        <li>@Html.ActionLink("Apply", "Create", "Application", new { positionId = Model.Id }, new { })</li>
+        <li>@Html.ActionLink("Edit", "Edit", "Position", new { id = Model.Id }, new { })</li>
+        <li>@Html.ActionLink("Remove", "Delete", "Position", new { id = Model.Id }, new { })</li>
+        <li>@Html.ActionLink("Return To Listing", "Index", "Position", new { id = Model.Id }, new { })</li>
+    </ul>
+</div>
+
