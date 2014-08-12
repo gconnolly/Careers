@@ -21,7 +21,7 @@ namespace Careers.Models
         }
     
         public int Id { get; set; }
-        public string UserId { get; set; }
+        public int UserId { get; set; }
         public byte[] Document { get; set; }
     
         public virtual ICollection<Application> Applications { get; set; }

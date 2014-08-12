@@ -5,21 +5,19 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="82371a8d366541758b8a3fe2cba8340a" Name="Diagram1">
-        <EntityTypeShape EntityType="Models.Application" Width="1.5" PointX="6" PointY="5.5" />
-        <EntityTypeShape EntityType="Models.Position" Width="1.5" PointX="8" PointY="5.5" />
-        <EntityTypeShape EntityType="Models.Resume" Width="1.5" PointX="6" PointY="8.875" />
-        <EntityTypeShape EntityType="Models.Role" Width="1.5" PointX="0.75" PointY="7" />
-        <EntityTypeShape EntityType="Models.UserClaim" Width="1.5" PointX="0.75" PointY="4.625" />
-        <EntityTypeShape EntityType="Models.User" Width="1.5" PointX="3" PointY="6.125" />
+        <EntityTypeShape EntityType="Models.Application" Width="1.5" PointX="5.375" PointY="3.625" />
+        <EntityTypeShape EntityType="Models.Position" Width="1.5" PointX="7.25" PointY="3.625" />
+        <EntityTypeShape EntityType="Models.Resume" Width="1.5" PointX="5.375" PointY="7" />
+        <EntityTypeShape EntityType="Models.Role" Width="1.5" PointX="0.75" PointY="4.75" />
+        <EntityTypeShape EntityType="Models.UserLogin" Width="1.5" PointX="0.75" PointY="6.75" />
+        <EntityTypeShape EntityType="Models.User" Width="1.5" PointX="3" PointY="5.25" />
         <AssociationConnector Association="Models.FK_Application_Positions" />
         <AssociationConnector Association="Models.FK_Applications_Resumes" />
         <AssociationConnector Association="Models.FK_Applications_Users" />
         <AssociationConnector Association="Models.FK_Resumes_Users" />
         <AssociationConnector Association="Models.FK_Users_Resumes" />
-        <AssociationConnector Association="Models.FK_UserClaims_Users" />
-        <AssociationConnector Association="Models.UserRoles" />
-        <EntityTypeShape EntityType="Models.UserLogin" Width="1.5" PointX="0.75" PointY="9" />
         <AssociationConnector Association="Models.FK_UserLogins_Users" />
+        <AssociationConnector Association="Models.UserRoles" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

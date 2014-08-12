@@ -41,18 +41,24 @@ namespace Careers.Controllers
         // GET: /Application/Create/5
         public ActionResult Create(int positionId)
         {
+            var position = context.Positions.Single(p => p.Id == positionId);
+
             return View(new Careers.Models.ApplicationCreateViewModel
             {
-                PositionId = positionId,
-                UserId = "default"
+                PositionId = position.Id,
+                PositionTitle = position.Title,
+                UserId = User.Identity.GetUserId()
             });
         }
 
         //
         // POST: /Application/Create
         [HttpPost]
-        public ActionResult Create(HttpPostedFileBase file, string userId, int positionId)
+        public ActionResult Create(HttpPostedFileBase file, int userId, int positionId)
         {
+            Application application;
+            Resume resume;
+
             try
             {
                 using (MemoryStream ms = new MemoryStream())
@@ -60,12 +66,12 @@ namespace Careers.Controllers
                     file.InputStream.CopyTo(ms);
                     byte[] array = ms.GetBuffer();
 
-                    var resume = new Resume
+                    resume = new Resume
                     {
                         Document = array,
                         UserId = userId
                     };
-                    var application = new Application
+                    application = new Application
                     {
                         AppliedOn = DateTime.Now.Date,
                         PositionId = positionId,
@@ -78,7 +84,7 @@ namespace Careers.Controllers
                     context.SaveChanges();
                 }
 
-                return RedirectToAction("Index");
+                return RedirectToAction("Details", new { id = application.Id });
             }
             catch
             {

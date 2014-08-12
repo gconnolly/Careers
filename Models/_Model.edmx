@@ -9,8 +9,8 @@
           <Key>
             <PropertyRef Name="Id" />
           </Key>
-          <Property Name="Id" Type="int" Nullable="false" />
-          <Property Name="UserId" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserId" Type="int" Nullable="false" />
           <Property Name="PositionId" Type="int" Nullable="false" />
           <Property Name="ResumeId" Type="int" Nullable="false" />
           <Property Name="Status" Type="int" Nullable="false" />
@@ -30,24 +30,15 @@
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="UserId" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="UserId" Type="int" Nullable="false" />
           <Property Name="Document" Type="varbinary(max)" Nullable="false" />
         </EntityType>
         <EntityType Name="Roles">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
-          <Property Name="Id" Type="nvarchar" MaxLength="128" Nullable="false" />
-          <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
-        </EntityType>
-        <EntityType Name="UserClaims">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="ClaimType" Type="nvarchar(max)" />
-          <Property Name="ClaimValue" Type="nvarchar(max)" />
-          <Property Name="UserId" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
         </EntityType>
         <EntityType Name="UserLogins">
           <Key>
@@ -55,7 +46,7 @@
             <PropertyRef Name="LoginProvider" />
             <PropertyRef Name="ProviderKey" />
           </Key>
-          <Property Name="UserId" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="UserId" Type="int" Nullable="false" />
           <Property Name="LoginProvider" Type="nvarchar" MaxLength="128" Nullable="false" />
           <Property Name="ProviderKey" Type="nvarchar" MaxLength="128" Nullable="false" />
         </EntityType>
@@ -64,17 +55,16 @@
             <PropertyRef Name="UserId" />
             <PropertyRef Name="RoleId" />
           </Key>
-          <Property Name="UserId" Type="nvarchar" MaxLength="128" Nullable="false" />
-          <Property Name="RoleId" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="UserId" Type="int" Nullable="false" />
+          <Property Name="RoleId" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="Users">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
-          <Property Name="Id" Type="nvarchar" MaxLength="128" Nullable="false" />
-          <Property Name="UserName" Type="nvarchar(max)" />
-          <Property Name="SecurityStamp" Type="nvarchar(max)" />
-          <Property Name="Discriminator" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="EmailAddress" Type="nvarchar(max)" />
+          <Property Name="FullName" Type="nvarchar(max)" />
           <Property Name="PasswordHash" Type="nvarchar(max)" />
           <Property Name="DefaultResumeId" Type="int" />
         </EntityType>
@@ -122,18 +112,6 @@
               <PropertyRef Name="Id" />
             </Principal>
             <Dependent Role="Resumes">
-              <PropertyRef Name="UserId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_UserClaims_Users">
-          <End Role="Users" Type="Self.Users" Multiplicity="1" />
-          <End Role="UserClaims" Type="Self.UserClaims" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Users">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="UserClaims">
               <PropertyRef Name="UserId" />
             </Dependent>
           </ReferentialConstraint>
@@ -191,7 +169,6 @@
           <EntitySet Name="Positions" EntityType="Self.Positions" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Resumes" EntityType="Self.Resumes" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Roles" EntityType="Self.Roles" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="UserClaims" EntityType="Self.UserClaims" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="UserLogins" EntityType="Self.UserLogins" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="UserRoles" EntityType="Self.UserRoles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
@@ -210,10 +187,6 @@
           <AssociationSet Name="FK_Resumes_Users" Association="Self.FK_Resumes_Users">
             <End Role="Users" EntitySet="Users" />
             <End Role="Resumes" EntitySet="Resumes" />
-          </AssociationSet>
-          <AssociationSet Name="FK_UserClaims_Users" Association="Self.FK_UserClaims_Users">
-            <End Role="Users" EntitySet="Users" />
-            <End Role="UserClaims" EntitySet="UserClaims" />
           </AssociationSet>
           <AssociationSet Name="FK_UserLogins_Users" Association="Self.FK_UserLogins_Users">
             <End Role="Users" EntitySet="Users" />
@@ -241,7 +214,7 @@
           <EntitySet Name="Positions" EntityType="Models.Position" />
           <EntitySet Name="Resumes" EntityType="Models.Resume" />
           <EntitySet Name="Roles" EntityType="Models.Role" />
-          <EntitySet Name="UserClaims" EntityType="Models.UserClaim" />
+          <EntitySet Name="UserLogins" EntityType="Models.UserLogin" />
           <EntitySet Name="Users" EntityType="Models.User" />
           <AssociationSet Name="FK_Application_Positions" Association="Models.FK_Application_Positions">
             <End Role="Position" EntitySet="Positions" />
@@ -263,18 +236,13 @@
             <End Role="Resume" EntitySet="Resumes" />
             <End Role="User" EntitySet="Users" />
           </AssociationSet>
-          <AssociationSet Name="FK_UserClaims_Users" Association="Models.FK_UserClaims_Users">
+          <AssociationSet Name="FK_UserLogins_Users" Association="Models.FK_UserLogins_Users">
             <End Role="User" EntitySet="Users" />
-            <End Role="UserClaim" EntitySet="UserClaims" />
+            <End Role="UserLogin" EntitySet="UserLogins" />
           </AssociationSet>
           <AssociationSet Name="UserRoles" Association="Models.UserRoles">
             <End Role="Role" EntitySet="Roles" />
             <End Role="User" EntitySet="Users" />
-          </AssociationSet>
-          <EntitySet Name="UserLogins" EntityType="Models.UserLogin" />
-          <AssociationSet Name="FK_UserLogins_Users" Association="Models.FK_UserLogins_Users">
-            <End Role="User" EntitySet="Users" />
-            <End Role="UserLogin" EntitySet="UserLogins" />
           </AssociationSet>
         </EntityContainer>
         <EnumType Name="PositionStatus">
@@ -293,8 +261,8 @@
           <Key>
             <PropertyRef Name="Id" />
           </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" />
-          <Property Name="UserId" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserId" Type="Int32" Nullable="false" />
           <Property Name="PositionId" Type="Int32" Nullable="false" />
           <Property Name="ResumeId" Type="Int32" Nullable="false" />
           <Property Name="Status" Type="Models.ApplicationStatus" Nullable="false" />
@@ -318,7 +286,7 @@
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="UserId" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="UserId" Type="Int32" Nullable="false" />
           <Property Name="Document" Type="Binary" Nullable="false" MaxLength="Max" FixedLength="false" />
           <NavigationProperty Name="Applications" Relationship="Models.FK_Applications_Resumes" FromRole="Resume" ToRole="Application" />
           <NavigationProperty Name="User" Relationship="Models.FK_Resumes_Users" FromRole="Resume" ToRole="User" />
@@ -328,36 +296,35 @@
           <Key>
             <PropertyRef Name="Id" />
           </Key>
-          <Property Name="Id" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="Users" Relationship="Models.UserRoles" FromRole="Role" ToRole="User" />
         </EntityType>
-        <EntityType Name="UserClaim">
+        <EntityType Name="UserLogin">
           <Key>
-            <PropertyRef Name="Id" />
+            <PropertyRef Name="UserId" />
+            <PropertyRef Name="LoginProvider" />
+            <PropertyRef Name="ProviderKey" />
           </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ClaimType" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="ClaimValue" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="UserId" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="User" Relationship="Models.FK_UserClaims_Users" FromRole="UserClaim" ToRole="User" />
+          <Property Name="UserId" Type="Int32" Nullable="false" />
+          <Property Name="LoginProvider" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="ProviderKey" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="User" Relationship="Models.FK_UserLogins_Users" FromRole="UserLogin" ToRole="User" />
         </EntityType>
         <EntityType Name="User">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
-          <Property Name="Id" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
-          <Property Name="UserName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="SecurityStamp" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="Discriminator" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="EmailAddress" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="FullName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="PasswordHash" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="DefaultResumeId" Type="Int32" />
           <NavigationProperty Name="Applications" Relationship="Models.FK_Applications_Users" FromRole="User" ToRole="Application" />
           <NavigationProperty Name="Resumes" Relationship="Models.FK_Resumes_Users" FromRole="User" ToRole="Resume" />
           <NavigationProperty Name="Resume" Relationship="Models.FK_Users_Resumes" FromRole="User" ToRole="Resume" />
-          <NavigationProperty Name="UserClaims" Relationship="Models.FK_UserClaims_Users" FromRole="User" ToRole="UserClaim" />
-          <NavigationProperty Name="Roles" Relationship="Models.UserRoles" FromRole="User" ToRole="Role" />
           <NavigationProperty Name="UserLogins" Relationship="Models.FK_UserLogins_Users" FromRole="User" ToRole="UserLogin" />
+          <NavigationProperty Name="Roles" Relationship="Models.UserRoles" FromRole="User" ToRole="Role" />
         </EntityType>
         <Association Name="FK_Application_Positions">
           <End Type="Models.Position" Role="Position" Multiplicity="1" />
@@ -419,33 +386,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_UserClaims_Users">
-          <End Type="Models.User" Role="User" Multiplicity="1" />
-          <End Type="Models.UserClaim" Role="UserClaim" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="User">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="UserClaim">
-              <PropertyRef Name="UserId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="UserRoles">
-          <End Type="Models.Role" Role="Role" Multiplicity="*" />
-          <End Type="Models.User" Role="User" Multiplicity="*" />
-        </Association>
-        <EntityType Name="UserLogin">
-          <Key>
-            <PropertyRef Name="UserId" />
-            <PropertyRef Name="LoginProvider" />
-            <PropertyRef Name="ProviderKey" />
-          </Key>
-          <Property Name="UserId" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
-          <Property Name="LoginProvider" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
-          <Property Name="ProviderKey" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="User" Relationship="Models.FK_UserLogins_Users" FromRole="UserLogin" ToRole="User" />
-        </EntityType>
         <Association Name="FK_UserLogins_Users">
           <End Type="Models.User" Role="User" Multiplicity="1" />
           <End Type="Models.UserLogin" Role="UserLogin" Multiplicity="*" />
@@ -457,6 +397,10 @@
               <PropertyRef Name="UserId" />
             </Dependent>
           </ReferentialConstraint>
+        </Association>
+        <Association Name="UserRoles">
+          <End Type="Models.Role" Role="Role" Multiplicity="*" />
+          <End Type="Models.User" Role="User" Multiplicity="*" />
         </Association>
         </Schema>
     </edmx:ConceptualModels>
@@ -503,13 +447,12 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="UserClaims">
-            <EntityTypeMapping TypeName="Models.UserClaim">
-              <MappingFragment StoreEntitySet="UserClaims">
+          <EntitySetMapping Name="UserLogins">
+            <EntityTypeMapping TypeName="Models.UserLogin">
+              <MappingFragment StoreEntitySet="UserLogins">
+                <ScalarProperty Name="ProviderKey" ColumnName="ProviderKey" />
+                <ScalarProperty Name="LoginProvider" ColumnName="LoginProvider" />
                 <ScalarProperty Name="UserId" ColumnName="UserId" />
-                <ScalarProperty Name="ClaimValue" ColumnName="ClaimValue" />
-                <ScalarProperty Name="ClaimType" ColumnName="ClaimType" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -518,9 +461,8 @@
               <MappingFragment StoreEntitySet="Users">
                 <ScalarProperty Name="DefaultResumeId" ColumnName="DefaultResumeId" />
                 <ScalarProperty Name="PasswordHash" ColumnName="PasswordHash" />
-                <ScalarProperty Name="Discriminator" ColumnName="Discriminator" />
-                <ScalarProperty Name="SecurityStamp" ColumnName="SecurityStamp" />
-                <ScalarProperty Name="UserName" ColumnName="UserName" />
+                <ScalarProperty Name="FullName" ColumnName="FullName" />
+                <ScalarProperty Name="EmailAddress" ColumnName="EmailAddress" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
@@ -533,15 +475,6 @@
               <ScalarProperty Name="Id" ColumnName="RoleId" />
             </EndProperty>
           </AssociationSetMapping>
-          <EntitySetMapping Name="UserLogins">
-            <EntityTypeMapping TypeName="Models.UserLogin">
-              <MappingFragment StoreEntitySet="UserLogins">
-                <ScalarProperty Name="ProviderKey" ColumnName="ProviderKey" />
-                <ScalarProperty Name="LoginProvider" ColumnName="LoginProvider" />
-                <ScalarProperty Name="UserId" ColumnName="UserId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

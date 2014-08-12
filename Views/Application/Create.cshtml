@@ -4,12 +4,12 @@
     ViewBag.Title = "Careers";
 }
 
-<h2>Apply to {Blah}</h2>
+<h2>Apply to @Model.PositionTitle</h2>
 
 @using (Html.BeginForm("Create", "Application", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", role = "form" }))
 {
     <div class="form-group">
-        <label class="col-md-2 control-label">Browse</label>
+        <label class="col-md-2 control-label">Upload Resume</label>
         <div class="col-md-10">
             <input type="file" name="file" />
             <input type="hidden" value="@Model.UserId" name="userId" />

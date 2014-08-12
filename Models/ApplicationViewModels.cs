@@ -10,5 +10,7 @@ namespace Careers.Models
         public string UserId { get; set; }
 
         public int PositionId { get; set; }
+
+        public string PositionTitle { get; set; }
     }
 }

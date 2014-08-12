@@ -15,7 +15,7 @@ namespace Careers.Models
     public partial class Application
     {
         public int Id { get; set; }
-        public string UserId { get; set; }
+        public int UserId { get; set; }
         public int PositionId { get; set; }
         public int ResumeId { get; set; }
         public ApplicationStatus Status { get; set; }

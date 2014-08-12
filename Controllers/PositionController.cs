@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNet.Identity;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -8,18 +9,21 @@ using System.Web.Mvc;
 namespace Careers.Models
 {
     [Authorize]
+    [RequireHttps]
     public class PositionController : Controller
     {
         private readonly ApplicationDbContext context;
+        private readonly UserManager<User> userManager;
 
         public PositionController()
-            : this(new ApplicationDbContext())
+            : this(new ApplicationDbContext(), new UserManager<User>(new Careers.Models.UserStore(new ApplicationDbContext())))
         {
         }
 
-        public PositionController(ApplicationDbContext applicationDbContext)
+        public PositionController(ApplicationDbContext applicationDbContext, UserManager<User> userManager)
         {
-            context = applicationDbContext;
+            this.userManager = userManager;
+            this.context = applicationDbContext;
         }
 
         //
@@ -27,7 +31,13 @@ namespace Careers.Models
         [AllowAnonymous]
         public ActionResult Index()
         {
-            return View(context.Positions.Where( p => p.Status == PositionStatus.Open ));
+            var viewModel = new PositionIndexViewModel
+            {
+                Positions = context.Positions.Where(p => p.Status == PositionStatus.Open),
+                CanAddPosition = User.Identity.IsAuthenticated && userManager.IsInRole(User.Identity.GetUserId(), "employee")
+            };
+
+            return View(viewModel);
         }
 
         //
@@ -35,7 +45,18 @@ namespace Careers.Models
         [AllowAnonymous]
         public ActionResult Details(int id)
         {
-            return View(context.Positions.Single(p => p.Id == id));
+            var position = context.Positions.Single(p => p.Id == id);
+            //TODO: Handle error scenarios
+
+            var viewModel = new PositionDetailViewModel
+            {
+                Position = position,
+                CanModifyPosition = User.Identity.IsAuthenticated && userManager.IsInRole(User.Identity.GetUserId(), "employee"),
+                CanApplyToPosition = User.Identity.IsAuthenticated && userManager.IsInRole(User.Identity.GetUserId(), "candidate"),
+                CanViewApplications = User.Identity.IsAuthenticated && userManager.IsInRole(User.Identity.GetUserId(), "employee")
+            };
+
+            return View(viewModel);
         }
 
         //
@@ -73,14 +94,22 @@ namespace Careers.Models
         // GET: /Position/Edit/5
         public ActionResult Edit(int id)
         {
-            var position = context.Positions.Single(p => p.Id == id);
-
-            return View(new PositionEditViewModel
+            if(User.Identity.IsAuthenticated && userManager.IsInRole(User.Identity.GetUserId(), "employee"))
             {
-                Title = position.Title,
-                Description = position.Description,
-                Id = position.Id
-            });
+                var position = context.Positions.Single(p => p.Id == id);
+                //TODO: handler error scenarios
+
+                return View(new PositionEditViewModel
+                {
+                    Title = position.Title,
+                    Description = position.Description,
+                    Id = position.Id
+                });
+            }
+            else
+            {
+                return RedirectToAction("Index");
+            }
         }
 
         //

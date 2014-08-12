@@ -41,6 +41,23 @@ namespace Careers.Models
         [DataType(DataType.MultilineText)]
         [Display(Name = "Description")]
         public string Description { get; set; }
+    }
 
+    public class PositionIndexViewModel
+    {
+        public IEnumerable<Position> Positions { get; set; }
+
+        public bool CanAddPosition { get; set; }
+    }
+
+    public class PositionDetailViewModel
+    {
+        public Position Position { get; set; }
+
+        public bool CanModifyPosition { get; set; }
+
+        public bool CanViewApplications { get; set; }
+
+        public bool CanApplyToPosition { get; set; }
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.Entity.Validation;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ using System.Web;
 
 namespace Careers.Models
 {
-    public class UserStore : IUserLoginStore<Careers.Models.User>, IUserClaimStore<Careers.Models.User>, IUserRoleStore<Careers.Models.User>, IUserPasswordStore<Careers.Models.User>, IUserSecurityStampStore<Careers.Models.User>, IUserStore<Careers.Models.User>, IDisposable
+    public class UserStore : IUserLoginStore<Careers.Models.User>, IUserRoleStore<Careers.Models.User>, IUserPasswordStore<Careers.Models.User>, IUserStore<Careers.Models.User>, IDisposable
     {
         private readonly ApplicationDbContext context;
 
@@ -32,7 +33,10 @@ namespace Careers.Models
 
         public Task<User> FindAsync(UserLoginInfo login)
         {
-            return Task.Run(() => context.UserLogins.Single(l => l.ProviderKey == login.ProviderKey && l.LoginProvider == login.LoginProvider).User);
+            return Task<User>.Run(() => {
+                var userLogin = context.UserLogins.SingleOrDefault(l => l.ProviderKey == login.ProviderKey && l.LoginProvider == login.LoginProvider);
+                return userLogin != null ? userLogin.User : null;
+            });
         }
 
         public Task<IList<UserLoginInfo>> GetLoginsAsync(User user)
@@ -49,7 +53,25 @@ namespace Careers.Models
         public Task CreateAsync(User user)
         {
             context.Users.Add(user);
-            return context.SaveChangesAsync();
+            try
+            {
+                return context.SaveChangesAsync();
+            }
+            catch (DbEntityValidationException e)
+            {
+                foreach (var eve in e.EntityValidationErrors)
+                {
+                    Console.WriteLine("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:",
+                        eve.Entry.Entity.GetType().Name, eve.Entry.State);
+                    foreach (var ve in eve.ValidationErrors)
+                    {
+                        Console.WriteLine("- Property: \"{0}\", Error: \"{1}\"",
+                            ve.PropertyName, ve.ErrorMessage);
+                    }
+                }
+                throw;
+            }
+            
         }
 
         public Task DeleteAsync(User user)
@@ -60,12 +82,12 @@ namespace Careers.Models
 
         public Task<User> FindByIdAsync(string userId)
         {
-            return context.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            return context.Users.SingleOrDefaultAsync(u => u.Id.ToString() == userId);
         }
 
         public Task<User> FindByNameAsync(string userName)
         {
-            return context.Users.SingleOrDefaultAsync(u => u.UserName == userName);
+            return context.Users.SingleOrDefaultAsync(u => u.FullName == userName);
         }
 
         public Task UpdateAsync(User user)
@@ -91,7 +113,7 @@ namespace Careers.Models
 
         public Task AddToRoleAsync(User user, string role)
         {
-            var roleEntity = context.Roles.SingleOrDefault(r => r.Id == role);
+            var roleEntity = context.Roles.SingleOrDefault(r => r.Name == role);
             roleEntity.Users.Add(user);
 
             return context.SaveChangesAsync();
@@ -99,53 +121,18 @@ namespace Careers.Models
 
         public Task<IList<string>> GetRolesAsync(User user)
         {
-            return Task.Run(() => (IList<string>)user.Roles.Select(u => u.Id).ToList());
+            return Task.Run(() => (IList<string>)user.Roles.Select(r => r.Name).ToList());
         }
 
         public Task<bool> IsInRoleAsync(User user, string role)
         {
-            return Task.Run(() => user.Roles.Any(r => r.Id == role));
+            return Task.Run(() => user.Roles.Any(r => r.Name == role));
         }
 
         public Task RemoveFromRoleAsync(User user, string role)
         {
-            user.Roles.Remove(user.Roles.Single( r => r.Id == role ));
+            user.Roles.Remove(user.Roles.Single(r => r.Name == role));
 
-            return context.SaveChangesAsync();
-        }
-
-        public Task<string> GetSecurityStampAsync(User user)
-        {
-            return Task.Run(() => user.SecurityStamp);
-        }
-
-        public Task SetSecurityStampAsync(User user, string stamp)
-        {
-            user.SecurityStamp = stamp;
-
-            return context.SaveChangesAsync();
-        }
-
-        public Task AddClaimAsync(User user, Claim claim)
-        {
-            user.UserClaims.Add(new UserClaim
-            {
-                UserId = user.Id,
-                ClaimType = claim.Type,
-                ClaimValue = claim.Value
-            });
-
-            return context.SaveChangesAsync();
-        }
-
-        public Task<IList<Claim>> GetClaimsAsync(User user)
-        {
-            return Task.Run(() => (IList<Claim>)user.UserClaims.Select(c => new Claim(c.ClaimType, c.ClaimValue)).ToList());
-        }
-
-        public Task RemoveClaimAsync(User user, Claim claim)
-        {
-            user.UserClaims.Remove(user.UserClaims.Single(c => c.ClaimType == claim.Type && c.ClaimValue == claim.Value));
             return context.SaveChangesAsync();
         }
 

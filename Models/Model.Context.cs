@@ -30,8 +30,7 @@ namespace Careers.Models
         public virtual DbSet<Position> Positions { get; set; }
         public virtual DbSet<Resume> Resumes { get; set; }
         public virtual DbSet<Role> Roles { get; set; }
-        public virtual DbSet<UserClaim> UserClaims { get; set; }
-        public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<UserLogin> UserLogins { get; set; }
+        public virtual DbSet<User> Users { get; set; }
     }
 }

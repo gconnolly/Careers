@@ -5,8 +5,14 @@ namespace Careers.Models
     public class ExternalLoginConfirmationViewModel
     {
         [Required]
-        [Display(Name = "User name")]
-        public string UserName { get; set; }
+        [Display(Name = "Email Address")]
+        [DataType(DataType.EmailAddress)]
+        public string EmailAddress { get; set; }
+
+        [Required]
+        [Display(Name = "Name")]
+        [DataType(DataType.Text)]
+        public string FullName { get; set; }
     }
 
     public class ManageUserViewModel
@@ -31,8 +37,9 @@ namespace Careers.Models
     public class LoginViewModel
     {
         [Required]
-        [Display(Name = "User name")]
-        public string UserName { get; set; }
+        [Display(Name = "Email Address")]
+        [DataType(DataType.EmailAddress)]
+        public string EmailAddress { get; set; }
 
         [Required]
         [DataType(DataType.Password)]
@@ -46,8 +53,13 @@ namespace Careers.Models
     public class RegisterViewModel
     {
         [Required]
-        [Display(Name = "User name")]
-        public string UserName { get; set; }
+        [Display(Name = "Email Address")]
+        [DataType(DataType.EmailAddress)]
+        public string EmailAddress { get; set; }
+
+        [Required]
+        [Display(Name = "Name")]
+        public string FullName { get; set; }
 
         [Required]
         [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]

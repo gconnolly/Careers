@@ -18,23 +18,20 @@ namespace Careers.Models
         {
             this.Applications = new HashSet<Application>();
             this.Resumes = new HashSet<Resume>();
-            this.UserClaims = new HashSet<UserClaim>();
-            this.Roles = new HashSet<Role>();
             this.UserLogins = new HashSet<UserLogin>();
+            this.Roles = new HashSet<Role>();
         }
     
-        public string Id { get; set; }
-        public string UserName { get; set; }
-        public string SecurityStamp { get; set; }
-        public string Discriminator { get; set; }
+        public int Id { get; set; }
+        public string EmailAddress { get; set; }
+        public string FullName { get; set; }
         public string PasswordHash { get; set; }
         public Nullable<int> DefaultResumeId { get; set; }
     
         public virtual ICollection<Application> Applications { get; set; }
         public virtual ICollection<Resume> Resumes { get; set; }
         public virtual Resume Resume { get; set; }
-        public virtual ICollection<UserClaim> UserClaims { get; set; }
-        public virtual ICollection<Role> Roles { get; set; }
         public virtual ICollection<UserLogin> UserLogins { get; set; }
+        public virtual ICollection<Role> Roles { get; set; }
     }
 }
