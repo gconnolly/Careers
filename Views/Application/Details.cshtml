@@ -24,4 +24,4 @@
         @Html.TextBoxFor(m => m.Application.AppliedOn, new { @readonly = "readonly", @class = "form-control" })
     </div>
 </div>
-<embed src="@Url.Action("ViewResume", new { id = Model.Application.ResumeId })" width="500" height="375">
+<object data="@Url.Action("ViewResume", new { id = Model.Application.ResumeId })" width="500" height="375"></object>
