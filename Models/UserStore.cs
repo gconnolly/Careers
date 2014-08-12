@@ -87,7 +87,7 @@ namespace Careers.Models
 
         public Task<User> FindByNameAsync(string userName)
         {
-            return context.Users.SingleOrDefaultAsync(u => u.FullName == userName);
+            return context.Users.SingleOrDefaultAsync(u => u.EmailAddress == userName);
         }
 
         public Task UpdateAsync(User user)

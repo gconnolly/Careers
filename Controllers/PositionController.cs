@@ -34,7 +34,7 @@ namespace Careers.Models
             var viewModel = new PositionIndexViewModel
             {
                 Positions = context.Positions.Where(p => p.Status == PositionStatus.Open),
-                CanAddPosition = User.Identity.IsAuthenticated && userManager.IsInRole(User.Identity.GetUserId(), "employee")
+                CanAddPosition = User.Identity.GetUserId() != null && userManager.IsInRole(User.Identity.GetUserId(), "employee")
             };
 
             return View(viewModel);

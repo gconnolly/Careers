@@ -13,4 +13,9 @@ namespace Careers.Models
 
         public string PositionTitle { get; set; }
     }
+
+    public class ApplicationDetailsViewModel
+    {
+        public Application Application { get; set; }
+    }
 }

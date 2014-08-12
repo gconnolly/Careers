@@ -9,8 +9,8 @@
     {
         <a href="@Url.Action("Details", "Position", new { id = item.Id })">
             <h3>@Html.DisplayFor(score => item.Title)</h3>
-            <p>@Html.DisplayFor(score => item.Description)</p>
         </a>
+        <p>@Html.DisplayFor(score => item.Description)</p>
     }
 
     @if(Model.CanAddPosition) {

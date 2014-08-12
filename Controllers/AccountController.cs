@@ -32,6 +32,7 @@ namespace Careers.Controllers
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)
         {
+            AuthenticationManager.SignOut();
             ViewBag.ReturnUrl = returnUrl;
             return View();
         }
@@ -78,10 +79,19 @@ namespace Careers.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new User() { EmailAddress = model.EmailAddress };
+                var user = new User() { FullName = model.FullName, EmailAddress = model.EmailAddress };
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
+                    if(user.EmailAddress.EndsWith("@xamarin.com"))
+                    {
+                        await UserManager.AddToRoleAsync(user.Id.ToString(), "employee");
+                    } 
+                    else 
+                    {
+                        await UserManager.AddToRoleAsync(user.Id.ToString(), "candidate");
+                    }
+
                     await SignInAsync(user, isPersistent: false);
                     return RedirectToAction("Index", "Position");
                 }
@@ -272,6 +282,15 @@ namespace Careers.Controllers
                     result = await UserManager.AddLoginAsync(user.Id.ToString(), info.Login);
                     if (result.Succeeded)
                     {
+                        if (user.EmailAddress.EndsWith("@xamarin.com"))
+                        {
+                            await UserManager.AddToRoleAsync(user.Id.ToString(), "employee");
+                        }
+                        else
+                        {
+                            await UserManager.AddToRoleAsync(user.Id.ToString(), "candidate");
+                        }
+
                         await SignInAsync(user, isPersistent: false);
                         return RedirectToLocal(returnUrl);
                     }

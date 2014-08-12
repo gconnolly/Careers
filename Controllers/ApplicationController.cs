@@ -34,7 +34,20 @@ namespace Careers.Controllers
         // GET: /Application/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+            var application = context.Applications.SingleOrDefault(a => a.Id == id);
+
+            return View(new Careers.Models.ApplicationDetailsViewModel
+            {
+                Application = application
+            });
+        }
+
+        //
+        // GET: /Application/ViewResume/5
+        public ActionResult ViewResume(int id)
+        {
+            var resume = context.Resumes.SingleOrDefault(r => r.Id == id);
+            return new FileContentResult(resume.Document, "application/pdf");
         }
 
         //
@@ -58,6 +71,9 @@ namespace Careers.Controllers
         {
             Application application;
             Resume resume;
+
+            //Only accept PDF file types
+            if (!IsValidContentType(file.ContentType)) { return View(); }
 
             try
             {
@@ -138,6 +154,13 @@ namespace Careers.Controllers
             {
                 return View();
             }
+        }
+
+        private static bool IsValidContentType(string contentType)
+        {
+            string ct = contentType.ToLower();
+
+            return ct == "application/pdf";
         }
     }
 }

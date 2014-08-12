@@ -1,4 +1,27 @@
-﻿<h1>I did it!</h1>
-@if(Roles.IsUserInRole("employee")) {
-    <h2>Big Time!!</h2>
+﻿@model Careers.Models.ApplicationDetailsViewModel
+
+@{
+    ViewBag.Title = "Careers";
 }
+
+<h2>Application: @Model.Application.User.FullName [@Model.Application.Position.Title]</h2>
+
+<div class="form-group">
+    @Html.LabelFor(m => m.Application.User.EmailAddress, new { @class = "col-md-2 control-label" })
+    <div class="col-md-10">
+        @Html.TextBoxFor(m => m.Application.User.EmailAddress, new { @readonly = "readonly", @class = "form-control" })
+    </div>
+</div>
+<div class="form-group">
+    @Html.LabelFor(m => m.Application.Status, new { @class = "col-md-2 control-label" })
+    <div class="col-md-10">
+        @Html.TextBoxFor(m => m.Application.Status, new { @readonly = "readonly", @class = "form-control" })
+    </div>
+</div>
+<div class="form-group">
+    @Html.LabelFor(m => m.Application.AppliedOn, new { @class = "col-md-2 control-label" })
+    <div class="col-md-10">
+        @Html.TextBoxFor(m => m.Application.AppliedOn, new { @readonly = "readonly", @class = "form-control" })
+    </div>
+</div>
+<embed src="@Url.Action("ViewResume", new { id = Model.Application.ResumeId })" width="500" height="375">
