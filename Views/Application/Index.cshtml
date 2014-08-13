@@ -1,0 +1,20 @@
+﻿@model Careers.Models.ApplicationListingViewModel
+@{
+    ViewBag.Title = "Careers";
+}
+
+<h2>Careers</h2>
+<div>
+
+        <h3>Applications:</h3>
+        <table>
+            @foreach (var item in Model.Applications)
+            {
+                <tr>
+                    <td>@Html.ActionLink(item.Position.Title, "Details", "Application", new { id = item.Id }, new { })</td>
+                    <td>@item.Status</td>
+                    <td>@item.AppliedOn.ToShortDateString()</td>
+                </tr>
+            }
+        </table>
+</div>

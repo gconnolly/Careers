@@ -1,27 +1,35 @@
-﻿@model Careers.Models.ApplicationDetailsViewModel
+﻿@model Careers.Models.ApplicationViewModel
 
 @{
     ViewBag.Title = "Careers";
 }
 
-<h2>Application: @Model.Application.User.FullName [@Model.Application.Position.Title]</h2>
+<h2>Application: @Model.UserName [@Model.PositionTitle]</h2>
 
 <div class="form-group">
-    @Html.LabelFor(m => m.Application.User.EmailAddress, new { @class = "col-md-2 control-label" })
+    @Html.LabelFor(m => m.EmailAddress, new { @class = "col-md-2 control-label" })
     <div class="col-md-10">
-        @Html.TextBoxFor(m => m.Application.User.EmailAddress, new { @readonly = "readonly", @class = "form-control" })
+        @Html.TextBoxFor(m => m.EmailAddress, new { @readonly = "readonly", @class = "form-control" })
     </div>
 </div>
 <div class="form-group">
-    @Html.LabelFor(m => m.Application.Status, new { @class = "col-md-2 control-label" })
+    @Html.LabelFor(m => m.AppliedOn, new { @class = "col-md-2 control-label" })
     <div class="col-md-10">
-        @Html.TextBoxFor(m => m.Application.Status, new { @readonly = "readonly", @class = "form-control" })
+        @Html.TextBoxFor(m => m.AppliedOn, new { @readonly = "readonly", @class = "form-control" })
     </div>
 </div>
 <div class="form-group">
-    @Html.LabelFor(m => m.Application.AppliedOn, new { @class = "col-md-2 control-label" })
+    @Html.LabelFor(m => m.Status, new { @class = "col-md-2 control-label" })
     <div class="col-md-10">
-        @Html.TextBoxFor(m => m.Application.AppliedOn, new { @readonly = "readonly", @class = "form-control" })
+        @Html.EnumDropDownListFor(m => m.Status, new { @disabled = "disabled", @class = "form-control" })
     </div>
 </div>
-<object data="@Url.Action("ViewResume", new { id = Model.Application.ResumeId })" width="500" height="375"></object>
+<object data="@Url.Action("View", "Resume", new { id = Model.ResumeId })" width="500" height="375"></object>
+<h3>Actions:</h3>
+<ul>
+    @if (Model.CanEditApplicationStatus)
+    {
+        <li>@Html.ActionLink("Edit", "Edit", "Application", new { id = Model.ApplicationId }, new { })</li>
+    }
+    <li>@Html.ActionLink("Return To Listing", "Index", "Position")</li>
+</ul>

@@ -16,14 +16,14 @@ namespace Careers.Models
         private readonly UserManager<User> userManager;
 
         public PositionController()
-            : this(new ApplicationDbContext(), new UserManager<User>(new Careers.Models.UserStore(new ApplicationDbContext())))
+            : this(new ApplicationDbContext(), a => new UserManager<User>(new Careers.Models.UserStore(a)))
         {
         }
 
-        public PositionController(ApplicationDbContext applicationDbContext, UserManager<User> userManager)
+        public PositionController(ApplicationDbContext applicationDbContext, Func<ApplicationDbContext, UserManager<User>> createUserManager)
         {
-            this.userManager = userManager;
             this.context = applicationDbContext;
+            this.userManager = createUserManager(applicationDbContext);
         }
 
         //
@@ -31,13 +31,11 @@ namespace Careers.Models
         [AllowAnonymous]
         public ActionResult Index()
         {
-            var viewModel = new PositionIndexViewModel
-            {
-                Positions = context.Positions.Where(p => p.Status == PositionStatus.Open),
-                CanAddPosition = User.Identity.GetUserId() != null && userManager.IsInRole(User.Identity.GetUserId(), "employee")
-            };
+            var positions = context.Positions;
+            var user = userManager.FindById(User.Identity.GetUserId());
+            //TODO: handler error scenarios
 
-            return View(viewModel);
+            return View(new PositionListingViewModel(positions, user));
         }
 
         //
@@ -46,38 +44,45 @@ namespace Careers.Models
         public ActionResult Details(int id)
         {
             var position = context.Positions.Single(p => p.Id == id);
-            //TODO: Handle error scenarios
+            var user = userManager.FindById(User.Identity.GetUserId());
+            //TODO: handler error scenarios
 
-            var viewModel = new PositionDetailViewModel
-            {
-                Position = position,
-                CanModifyPosition = User.Identity.IsAuthenticated && userManager.IsInRole(User.Identity.GetUserId(), "employee"),
-                CanApplyToPosition = User.Identity.IsAuthenticated && userManager.IsInRole(User.Identity.GetUserId(), "candidate"),
-                CanViewApplications = User.Identity.IsAuthenticated && userManager.IsInRole(User.Identity.GetUserId(), "employee")
-            };
-
-            return View(viewModel);
+            return View(new PositionViewModel(position, user));
         }
 
         //
         // GET: /Position/Create
         public ActionResult Create()
         {
-            return View(new PositionCreateViewModel());
+            if (!User.Identity.IsAuthenticated || !userManager.IsInRole(User.Identity.GetUserId(), Careers.Models.User.EMPLOYEE))
+            {
+                return RedirectToAction("Index");
+            }
+
+            var position = new Position();
+            var user = userManager.FindById(User.Identity.GetUserId());
+            //TODO: handler error scenarios
+
+            return View(new PositionViewModel(position, user));
         }
 
         //
         // POST: /Position/Create
         [HttpPost]
-        public ActionResult Create(PositionCreateViewModel positionCreateViewModel)
+        public ActionResult Create(PositionViewModel positionViewModel)
         {
+            if (!User.Identity.IsAuthenticated || !userManager.IsInRole(User.Identity.GetUserId(), Careers.Models.User.EMPLOYEE))
+            {
+                return RedirectToAction("Index");
+            }
+
             try
             {
                 context.Positions.Add(new Position
                 {
-                    Title = positionCreateViewModel.Title,
-                    Description = positionCreateViewModel.Description,
-                    Status = PositionStatus.Open
+                    Title = positionViewModel.Title,
+                    Description = positionViewModel.Description,
+                    Status = PositionStatus.Open,
                 });
 
                 context.SaveChanges();
@@ -94,61 +99,39 @@ namespace Careers.Models
         // GET: /Position/Edit/5
         public ActionResult Edit(int id)
         {
-            if(User.Identity.IsAuthenticated && userManager.IsInRole(User.Identity.GetUserId(), "employee"))
-            {
-                var position = context.Positions.Single(p => p.Id == id);
-                //TODO: handler error scenarios
-
-                return View(new PositionEditViewModel
-                {
-                    Title = position.Title,
-                    Description = position.Description,
-                    Id = position.Id
-                });
-            }
-            else
+            if(!User.Identity.IsAuthenticated || !userManager.IsInRole(User.Identity.GetUserId(), Careers.Models.User.EMPLOYEE))
             {
                 return RedirectToAction("Index");
             }
+
+            var position = context.Positions.Single(p => p.Id == id);
+            var user = userManager.FindById(User.Identity.GetUserId());
+            //TODO: handler error scenarios
+
+            return View(new PositionViewModel(position, user));
         }
 
         //
         // POST: /Position/Edit/5
         [HttpPost]
-        public ActionResult Edit(int id, PositionEditViewModel positionEditViewModel)
+        public ActionResult Edit(int id, PositionViewModel positionViewModel)
         {
+            if (!User.Identity.IsAuthenticated || !userManager.IsInRole(User.Identity.GetUserId(), Careers.Models.User.EMPLOYEE))
+            {
+                return RedirectToAction("Index");
+            }
+
             try
             {
                 var position = context.Positions.Single(p => p.Id == id);
+                var user = userManager.FindById(User.Identity.GetUserId());
+                //TODO: handler error scenarios
 
-                position.Title = positionEditViewModel.Title;
-                position.Description = positionEditViewModel.Description;
+                position.Description = positionViewModel.Description;
+                position.Title = positionViewModel.Description;
+                position.Status = positionViewModel.Status;
 
                 context.SaveChanges();
-
-                return RedirectToAction("Index");
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        //
-        // GET: /Position/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        //
-        // POST: /Position/Delete/5
-        [HttpPost]
-        public ActionResult Delete(int id, FormCollection collection)
-        {
-            try
-            {
-                context.Positions.Remove(context.Positions.Single(p => p.Id == id));
 
                 return RedirectToAction("Index");
             }

@@ -9,25 +9,32 @@ using System.Web.Mvc;
 
 namespace Careers.Controllers
 {
+    [Authorize]
+    [RequireHttps]
     public class ApplicationController : Controller
     {
         private readonly ApplicationDbContext context;
-
+        private readonly UserManager<User> userManager;
+        
         public ApplicationController()
-            : this(new ApplicationDbContext())
+            : this(new ApplicationDbContext(), a => new UserManager<User>(new Careers.Models.UserStore(a)))
         {
         }
 
-        public ApplicationController(ApplicationDbContext applicationDbContext)
+        public ApplicationController(ApplicationDbContext applicationDbContext, Func<ApplicationDbContext, UserManager<User>> createUserManager)
         {
-            context = applicationDbContext;
+            this.context = applicationDbContext;
+            this.userManager = createUserManager(applicationDbContext);
         }
 
         //
-        // GET: /Application/
+        // GET: /Application/Index
         public ActionResult Index()
         {
-            return View();
+            var user = userManager.FindById(User.Identity.GetUserId());
+            //TODO: handler error scenarios
+
+            return View(new Careers.Models.ApplicationListingViewModel(context.Applications, user));
         }
 
         //
@@ -35,70 +42,55 @@ namespace Careers.Controllers
         public ActionResult Details(int id)
         {
             var application = context.Applications.SingleOrDefault(a => a.Id == id);
+            var user = userManager.FindById(User.Identity.GetUserId());
+            //TODO: handler error scenarios
 
-            return View(new Careers.Models.ApplicationDetailsViewModel
-            {
-                Application = application
-            });
-        }
-
-        //
-        // GET: /Application/ViewResume/5
-        public ActionResult ViewResume(int id)
-        {
-            var resume = context.Resumes.SingleOrDefault(r => r.Id == id);
-            return new FileContentResult(resume.Document, "application/pdf");
+            return View(new Careers.Models.ApplicationViewModel(application, user));
         }
 
         //
         // GET: /Application/Create/5
-        public ActionResult Create(int positionId)
+        public ActionResult Create(int id)
         {
-            var position = context.Positions.Single(p => p.Id == positionId);
+            var position = context.Positions.Single(p => p.Id == id);
+            var user = userManager.FindById(User.Identity.GetUserId());
+            //TODO: handler error scenarios
 
-            return View(new Careers.Models.ApplicationCreateViewModel
+            var application = new Application
             {
-                PositionId = position.Id,
-                PositionTitle = position.Title,
-                UserId = User.Identity.GetUserId()
-            });
+                Position = position,
+                User = user,
+                Status = ApplicationStatus.New,
+                AppliedOn = DateTime.Now.Date
+            };
+
+            return View(new Careers.Models.ApplicationViewModel(application, user));
         }
 
         //
         // POST: /Application/Create
         [HttpPost]
-        public ActionResult Create(HttpPostedFileBase file, int userId, int positionId)
+        public ActionResult Create(ApplicationViewModel applicationViewModel, HttpPostedFileBase file)
         {
-            Application application;
-            Resume resume;
-
             //Only accept PDF file types
-            if (!IsValidContentType(file.ContentType)) { return View(); }
+            if (!ResumeController.IsValidContentType(file.ContentType)) { return View(); }
 
             try
             {
-                using (MemoryStream ms = new MemoryStream())
+                var application = new Application
                 {
-                    file.InputStream.CopyTo(ms);
-                    byte[] array = ms.GetBuffer();
-
-                    resume = new Resume
+                    AppliedOn = DateTime.Now.Date,
+                    PositionId = applicationViewModel.PositionId,
+                    UserId = applicationViewModel.UserId,
+                    Resume = new Resume
                     {
-                        Document = array,
-                        UserId = userId
-                    };
-                    application = new Application
-                    {
-                        AppliedOn = DateTime.Now.Date,
-                        PositionId = positionId,
-                        UserId = userId,
-                        Resume = resume
-                    };
+                        Document = ResumeController.GetDocumentFromFile(file),
+                        UserId = applicationViewModel.UserId
+                    }
+                };
 
-                    context.Resumes.Add(resume);
-                    context.Applications.Add(application);
-                    context.SaveChanges();
-                }
+                context.Applications.Add(application);
+                context.SaveChanges();
 
                 return RedirectToAction("Details", new { id = application.Id });
             }
@@ -112,55 +104,34 @@ namespace Careers.Controllers
         // GET: /Application/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            var application = context.Applications.SingleOrDefault(a => a.Id == id);
+            var user = userManager.FindById(User.Identity.GetUserId());
+            //TODO: handler error scenarios
+
+            return View(new Careers.Models.ApplicationViewModel(application, user));
         }
 
         //
         // POST: /Application/Edit/5
         [HttpPost]
-        public ActionResult Edit(int id, FormCollection collection)
+        public ActionResult Edit(int id, ApplicationViewModel applicationViewModel)
         {
             try
             {
-                // TODO: Add update logic here
+                var application = context.Applications.SingleOrDefault(a => a.Id == id);
+                var user = userManager.FindById(User.Identity.GetUserId());
+                //TODO: handler error scenarios
 
-                return RedirectToAction("Index");
+                application.Status = applicationViewModel.Status;
+
+                context.SaveChanges();
+
+                return RedirectToAction("Details", new { id = id });
             }
             catch
             {
                 return View();
             }
-        }
-
-        //
-        // GET: /Application/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        //
-        // POST: /Application/Delete/5
-        [HttpPost]
-        public ActionResult Delete(int id, FormCollection collection)
-        {
-            try
-            {
-                // TODO: Add delete logic here
-
-                return RedirectToAction("Index");
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        private static bool IsValidContentType(string contentType)
-        {
-            string ct = contentType.ToLower();
-
-            return ct == "application/pdf";
         }
     }
 }

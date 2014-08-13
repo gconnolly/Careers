@@ -1,4 +1,4 @@
-﻿@model Careers.Models.ApplicationCreateViewModel
+﻿@model Careers.Models.ApplicationViewModel
 
 @{
     ViewBag.Title = "Careers";
@@ -12,8 +12,8 @@
         <label class="col-md-2 control-label">Upload Resume</label>
         <div class="col-md-10">
             <input type="file" name="file" accept="application/pdf" />
-            <input type="hidden" value="@Model.UserId" name="userId" />
-            <input type="hidden" value="@Model.PositionId" name="positionId" />
+            @Html.HiddenFor(m => m.PositionId)
+            @Html.HiddenFor(m => m.UserId)
         </div>
     </div>
     

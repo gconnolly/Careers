@@ -1,4 +1,4 @@
-﻿@model Careers.Models.PositionEditViewModel
+﻿@model Careers.Models.PositionViewModel
 
 @{
     ViewBag.Title = "Careers";
@@ -9,9 +9,9 @@
 @using (Html.BeginForm("Edit", "Position", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
 {
    <div class="form-group">
-        @Html.LabelFor(m => m.Id, new { @class = "col-md-2 control-label" })
+        @Html.LabelFor(m => m.PositionId, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
-            @Html.TextBoxFor(m => m.Id, new { @readonly="readonly", @class = "form-control" })
+            @Html.TextBoxFor(m => m.PositionId, new { @readonly="readonly", @class = "form-control" })
         </div>
     </div>
     <div class="form-group">

@@ -1,17 +1,17 @@
-﻿@model Careers.Models.PositionDetailViewModel
+﻿@model Careers.Models.PositionViewModel
 @{
     ViewBag.Title = "Careers";
 }
 
-<h2>@Html.DisplayFor(score => Model.Position.Title)</h2>
+<h2>@Html.DisplayFor(score => Model.Title)</h2>
 
 <div>
-    <p>@Model.Position.Description</p>
+    <p>@Model.Description</p>
 
-    <h3>Applicants:</h3>
-    @if (Model.CanViewApplications) { 
+    @if (Model.CanViewApplications) {
+        <h3>Applicants:</h3>
         <table>
-            @foreach (var item in Model.Position.Applications)
+            @foreach (var item in Model.Applications)
             {
                 <tr>
                     <td>@Html.ActionLink(item.User.UserName, "Details", "Application", new { id = item.Id }, new { })</td>
@@ -21,16 +21,21 @@
             }
         </table>
     }
+    @if (Model.HasAppliedToPosition)
+    {
+        <p>You @Html.ActionLink("applied", "Details", "Application", new { id = Model.UserApplicationId }, new { }) to this position on @Model.UserAppliedOn.ToShortDateString()</p>
+    }
     <h3>Actions:</h3>
     <ul>
-        @if (Model.CanApplyToPosition) {
-            <li>@Html.ActionLink("Apply", "Create", "Application", new { positionId = Model.Position.Id }, new { })</li>
+        @if (Model.CanApplyToPosition) 
+        {
+            <li>@Html.ActionLink("Apply", "Create", "Application", new { id = Model.PositionId }, new { })</li>
         }
-        @if (Model.CanModifyPosition) {
-            <li>@Html.ActionLink("Edit", "Edit", "Position", new { id = Model.Position.Id }, new { })</li>
-            <li>@Html.ActionLink("Remove", "Delete", "Position", new { id = Model.Position.Id }, new { })</li>
+        @if (Model.CanModifyPosition) 
+        {
+            <li>@Html.ActionLink("Edit", "Edit", "Position", new { id = Model.PositionId }, new { })</li>
         }
-        <li>@Html.ActionLink("Return To Listing", "Index", "Position", new { id = Model.Position.Id }, new { })</li>
+        <li>@Html.ActionLink("Return To Listing", "Index", "Position", new { id = Model.PositionId }, new { })</li>
     </ul>
 </div>
 

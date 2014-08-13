@@ -5,6 +5,9 @@ namespace Careers.Models
 {
     public partial class User : IUser
     {
+        public const string EMPLOYEE = "employee";
+        public const string CANDIDATE = "candidate";
+
         string IUser<string>.Id
         {
             get { return this.Id.ToString(); }

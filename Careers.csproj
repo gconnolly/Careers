@@ -172,6 +172,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\ApplicationController.cs" />
+    <Compile Include="Controllers\ResumeController.cs" />
     <Compile Include="Models\Application.cs">
       <DependentUpon>Model.tt</DependentUpon>
     </Compile>
@@ -305,9 +306,11 @@
     <Content Include="Views\Application\Create.cshtml" />
     <Content Include="Views\Application\Details.cshtml" />
     <Content Include="Views\Application\Edit.cshtml" />
+    <Content Include="Views\Application\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\Resume\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

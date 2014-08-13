@@ -12,7 +12,8 @@ using Careers.Models;
 
 namespace Careers.Controllers
 {
-    //[Authorize]
+    [Authorize]
+    [RequireHttps]
     public class AccountController : Controller
     {
         public AccountController()
