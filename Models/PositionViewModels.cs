@@ -44,7 +44,7 @@ namespace Careers.Models
             this.Title = position.Title;
             this.Description = position.Description;
             this.Status = position.Status;
-            this.Applications = position.Applications;
+            this.Applications = position.Applications.Where(a => a.Status != ApplicationStatus.Removed).OrderBy(a => a.AppliedOn);
 
             var application = user.Applications.SingleOrDefault(a => a.PositionId == position.Id && a.Status != ApplicationStatus.Removed);
             if(application != null)
