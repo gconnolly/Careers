@@ -15,7 +15,7 @@
                             .Encoded(false)
                             .Sortable(true)
                             .RenderValueAs(p => Html.ActionLink(p.Title, "Details", "Position", new { id = p.Id }, new { }));
-                    }).WithPaging(25);
+                    }).WithPaging(25)
     </div>
     <div class="col-md-2">
         @if (Model.CanAddPosition)

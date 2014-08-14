@@ -122,7 +122,7 @@ namespace Careers.Controllers
                 var user = userManager.FindById(User.Identity.GetUserId());
                 //TODO: handler error scenarios
 
-                application.Status = applicationViewModel.Status;
+                application.Status = applicationViewModel.ApplicationStatus;
 
                 context.SaveChanges();
 

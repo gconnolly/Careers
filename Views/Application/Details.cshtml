@@ -25,15 +25,24 @@
                 <div class="form-group">
                     @Html.LabelFor(m => m.AppliedOn, new { @class = "col-md-3 control-label" })
                     <div class="col-md-9">
-                        <p class="form-control-static">@Model.AppliedOn</p>
+                        <p class="form-control-static">@Model.AppliedOnDisplay</p>
                     </div>
                 </div>
                 <div class="form-group">
-                    @Html.LabelFor(m => m.Status, new { @class = "col-md-3 control-label" })
+                    @Html.LabelFor(m => m.PositionStatus, new { @class = "col-md-3 control-label" })
                     <div class="col-md-9">
-                        <p class="form-control-static">@Model.Status</p>
+                        <p class="form-control-static">@Model.PositionStatus</p>
                     </div>
                 </div>
+            @if (Model.CanViewEditApplicationStatus)
+            {
+                <div class="form-group">
+                    @Html.LabelFor(m => m.ApplicationStatus, new { @class = "col-md-3 control-label" })
+                    <div class="col-md-9">
+                        <p class="form-control-static">@Model.ApplicationStatus</p>
+                    </div>
+                </div>
+            }
             </div>
         </div>
         <div class="row">
@@ -44,7 +53,7 @@
     </div>
     <div class="col-md-2">
         <div class="btn-group-vertical">
-            @if (Model.CanEditApplicationStatus)
+            @if (Model.CanViewEditApplicationStatus)
             {
                 @Html.ActionLink("Edit", "Edit", "Application", new { id = Model.ApplicationId }, new { @class = "btn btn-default" })
             }

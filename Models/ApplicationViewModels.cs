@@ -23,6 +23,24 @@ namespace Careers.Models
         public IEnumerable<Application> Applications { get; private set; }
     }
 
+    public class ApplicationListItemViewModel
+    {
+        public ApplicationListItemViewModel() { }
+
+        public ApplicationListItemViewModel(Application application)
+        {
+            this.Id = application.Id;
+            this.UserName = application.User.FullName;
+            this.Status = application.Status.ToString();
+            this.AppliedOn = application.AppliedOn.ToShortDateString();
+        }
+
+        public int Id { get; set; }
+        public string UserName { get; set; }
+        public string Status { get; set; }
+        public string AppliedOn { get; set; }
+    }
+
     public class ApplicationViewModel
     {
         private readonly User user;
@@ -39,7 +57,8 @@ namespace Careers.Models
             this.UserName = application.User.FullName;
             this.EmailAddress = application.User.EmailAddress;
             this.PositionTitle = application.Position.Title;
-            this.Status = application.Status;
+            this.ApplicationStatus = application.Status;
+            this.PositionStatus = application.Position.Status;
             this.AppliedOn = application.AppliedOn;
         }
 
@@ -67,15 +86,30 @@ namespace Careers.Models
         public string PositionTitle { get; private set; }
 
         [Required]
-        [Display(Name = "Status")]
-        public ApplicationStatus Status { get; set; }
+        [Display(Name = "Application Status")]
+        public ApplicationStatus ApplicationStatus { get; set; }
+
+        [Required]
+        [Display(Name = "Position Status")]
+        public PositionStatus PositionStatus { get; set; }
 
         [Required]
         [DataType(DataType.Date)]
         [Display(Name = "Applied On")]
         public DateTime AppliedOn { get; private set; }
 
-        public bool CanEditApplicationStatus
+        [Required]
+        [DataType(DataType.Date)]
+        [Display(Name = "Applied On")]
+        public string AppliedOnDisplay
+        {
+            get
+            {
+                return AppliedOn.ToShortDateString();
+            }
+        }
+
+        public bool CanViewEditApplicationStatus
         {
             get
             {

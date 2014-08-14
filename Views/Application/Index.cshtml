@@ -21,5 +21,8 @@
                             .Titled("Applied On")
                             .Sortable(true)
                             .RenderValueAs(a => a.AppliedOn.ToShortDateString());
-                    }).WithPaging(25);
+                        columns.Add(a => a.Position.Status)
+                            .Titled("Position Status")
+                            .Sortable(true);                        
+                    }).WithPaging(25)
 </div>

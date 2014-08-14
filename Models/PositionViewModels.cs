@@ -44,13 +44,20 @@ namespace Careers.Models
             this.Title = position.Title;
             this.Description = position.Description;
             this.Status = position.Status;
-            this.Applications = position.Applications.Where(a => a.Status != ApplicationStatus.Removed).OrderBy(a => a.AppliedOn);
+            this.Applications = position.Applications
+                .Where(a => a.Status != ApplicationStatus.Removed)
+                .OrderBy(a => a.AppliedOn)
+                .Select( a => new ApplicationListItemViewModel(a));
 
-            var application = user.Applications.SingleOrDefault(a => a.PositionId == position.Id && a.Status != ApplicationStatus.Removed);
-            if(application != null)
+            if (user != null)
             {
-                this.UserApplicationId = application.Id;
-                this.UserAppliedOn = application.AppliedOn;
+                var application = user.Applications.SingleOrDefault(a => a.PositionId == position.Id && a.Status != ApplicationStatus.Removed);
+
+                if (application != null)
+                {
+                    this.UserApplicationId = application.Id;
+                    this.UserAppliedOn = application.AppliedOn;
+                }
             }
             
         }
@@ -79,7 +86,9 @@ namespace Careers.Models
         [Display(Name = "Status")]
         public PositionStatus Status { get; set; }
 
-        public IEnumerable<Application> Applications { get; private set; }
+        public IEnumerable<ApplicationListItemViewModel> Applications { get; private set; }
+
+        public ApplicationStatus ApplicationStatusFilter { get; set; }
 
         public bool CanModifyPosition
         {

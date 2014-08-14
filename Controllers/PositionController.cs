@@ -128,7 +128,7 @@ namespace Careers.Models
                 //TODO: handler error scenarios
 
                 position.Description = positionViewModel.Description;
-                position.Title = positionViewModel.Description;
+                position.Title = positionViewModel.Title;
                 position.Status = positionViewModel.Status;
 
                 context.SaveChanges();

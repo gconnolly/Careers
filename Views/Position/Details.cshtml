@@ -15,23 +15,25 @@
         @if (Model.CanViewApplications)
         {
             <h3>Applicants</h3>
-            @Html.Grid(Model.Applications).Columns(columns =>
+            @Html.Grid(Model.Applications).Named("applicationsGrid").Columns(columns =>
                   {
                       columns.Add()
                           .Sanitized(false)
                           .Encoded(false)
                           .Titled("Candidate")
                           .Sortable(true)
-                          .RenderValueAs(a => Html.ActionLink(a.User.FullName, "Details", "Application", new { id = a.Id }, new { }));
+                          .RenderValueAs(a => Html.ActionLink(a.UserName, "Details", "Application", new { id = a.Id }, new { }));
                       columns.Add(a => a.Status)
                           .Titled("Status")
                           .Filterable(true)
-                          .Sortable(true);
+                          .SetFilterWidgetType("ApplicationStatusFilterWidget")
+                          .Sortable(true)
+                          .RenderValueAs(a => a.Status.ToString());
                       columns.Add(a => a.AppliedOn)
                           .Titled("Applied On")
                           .Sortable(true)
-                          .RenderValueAs(a => a.AppliedOn.ToShortDateString());
-                  }).WithPaging(25);
+                          .RenderValueAs(a => a.AppliedOn);
+                  }).WithPaging(25)
 
         }
         @if (Model.HasAppliedToPosition)
@@ -57,3 +59,87 @@
         </div>
     </div>
 </div>
+<script type="text/javascript">
+    /***
+    * ApplicationStatusFilterWidget - Provides filter user interface for customer name column in this project
+    * This widget onRenders select list with avaliable customers.
+    */
+
+    function ApplicationStatusFilterWidget() {
+        /***
+        * This method must return type of registered widget type in 'SetFilterWidgetType' method
+        */
+        this.getAssociatedTypes = function () {
+            return ["ApplicationStatusFilterWidget"];
+        };
+        /***
+        * This method invokes when filter widget was shown on the page
+        */
+        this.onShow = function () {
+            /* Place your on show logic here */
+        };
+
+        this.showClearFilterButton = function () {
+            return true;
+        };
+        /***
+        * This method will invoke when user was clicked on filter button.
+        * container - html element, which must contain widget layout;
+        * lang - current language settings;
+        * typeName - current column type (if widget assign to multipile types, see: getAssociatedTypes);
+        * values - current filter values. Array of objects [{filterValue: '', filterType:'1'}];
+        * cb - callback function that must invoked when user want to filter this column. Widget must pass filter type and filter value.
+        * data - widget data passed from the server
+        */
+        this.onRender = function (container, lang, typeName, values, cb, data) {
+            //store parameters:
+            this.cb = cb;
+            this.container = container;
+            this.lang = lang;
+
+            //this filterwidget demo supports only 1 filter value for column column
+            this.value = values.length > 0 ? values[0] : { filterType: 1, filterValue: "" };
+
+            this.renderWidget(); //onRender filter widget
+
+            //get list with customers
+            var applicationStatuslist = this.container.find(".applicationStatuslist");
+
+            //save current context:
+            var $context = this;
+            //register onclick event handler
+            applicationStatuslist.change(function () {
+                //invoke callback with selected filter values:
+                var values = [{ filterValue: $(this).val(), filterType: 1 /* Equals */ }];
+                $context.cb(values);
+            });
+        };
+
+        this.renderWidget = function () {
+            var html = '<p>Select status to filter:</p>\
+                        <select style="width:250px;" class="grid-filter-type applicationStatuslist form-control">',
+                items = [
+                    'New',
+                    'Contact',
+                    'Interview',
+                    'Hire',
+                    'Removed',
+                    'Reject'
+                ];
+            
+            for (var i = 0; i < items.length; i++) {
+                html += '<option ' + (items[i] == this.value.filterValue ? 'selected="selected"' : '') + ' value="' + items[i] + '">' + items[i] + '</option>';
+            }
+
+            html += '</select>';
+            this.container.append(html);
+        };
+    }
+
+    //Initialize Application Status Filter
+    $(function () {
+        pageGrids.applicationsGrid.addFilterWidget(new ApplicationStatusFilterWidget());
+    });
+
+    
+</script>
