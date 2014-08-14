@@ -133,9 +133,9 @@ namespace Careers.Models
         {
             get
             {
-                return user == null
-                    || (user.Roles.Any(r => r.Name == User.CANDIDATE)
-                    && !user.Applications.Any(a => a.PositionId == this.PositionId && a.Status != ApplicationStatus.Removed));
+                return user != null
+                    && user.Roles.Any(r => r.Name == User.CANDIDATE)
+                    && user.Applications.Any(a => a.PositionId == this.PositionId && a.Status != ApplicationStatus.Removed);
             }
         }
 
