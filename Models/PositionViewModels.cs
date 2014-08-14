@@ -16,7 +16,12 @@ namespace Careers.Models
         public PositionListingViewModel(IQueryable<Position> positions, User user)
         {
             this.user = user;
-            this.Positions = positions.Where(p => p.Status == PositionStatus.Open).OrderBy(p => p.Id);
+            this.Positions = positions.OrderBy(p => p.Id);
+
+            if (!CanViewClosedPositions)
+            {
+                this.Positions = this.Positions.Where(p => p.Status == PositionStatus.Open);
+            }
         }
 
         public IEnumerable<Position> Positions { get; private set; }
@@ -27,6 +32,14 @@ namespace Careers.Models
             {
                 return user != null
                     && user.Roles.Any(r => r.Name == User.EMPLOYEE);
+            }
+        }
+
+        public bool CanViewClosedPositions
+        {
+            get
+            {
+                return user != null && user.Roles.Any(r => r.Name == User.EMPLOYEE);
             }
         }
     }

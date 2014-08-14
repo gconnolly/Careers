@@ -15,6 +15,11 @@
                             .Encoded(false)
                             .Sortable(true)
                             .RenderValueAs(p => Html.ActionLink(p.Title, "Details", "Position", new { id = p.Id }, new { }));
+                        
+                        if(Model.CanViewClosedPositions) {
+                        columns.Add(p => p.Status)
+                            .Sortable(true);
+                        }                        
                     }).WithPaging(25)
     </div>
     <div class="col-md-2">
