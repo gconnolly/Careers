@@ -16,8 +16,7 @@ namespace Careers.Models
         public PositionListingViewModel(IQueryable<Position> positions, User user)
         {
             this.user = user;
-
-            Positions = positions.Where(p => p.Status == PositionStatus.Open);
+            this.Positions = positions.Where(p => p.Status == PositionStatus.Open).OrderBy(p => p.Id);
         }
 
         public IEnumerable<Position> Positions { get; private set; }
@@ -41,14 +40,13 @@ namespace Careers.Models
         public PositionViewModel(Position position, User user)
         {
             this.user = user;
-
             this.PositionId = position.Id;
             this.Title = position.Title;
             this.Description = position.Description;
             this.Status = position.Status;
             this.Applications = position.Applications;
 
-            var application = user.Applications.SingleOrDefault(a => a.PositionId == position.Id);
+            var application = user.Applications.SingleOrDefault(a => a.PositionId == position.Id && a.Status != ApplicationStatus.Removed);
             if(application != null)
             {
                 this.UserApplicationId = application.Id;
@@ -105,7 +103,17 @@ namespace Careers.Models
             {
                 return user == null
                     || (user.Roles.Any(r => r.Name == User.CANDIDATE)
-                    && !user.Applications.Any(a => a.PositionId == this.PositionId));
+                    && !user.Applications.Any(a => a.PositionId == this.PositionId && a.Status != ApplicationStatus.Removed));
+            }
+        }
+
+        public bool CanRemoveApplication
+        {
+            get
+            {
+                return user == null
+                    || (user.Roles.Any(r => r.Name == User.CANDIDATE)
+                    && !user.Applications.Any(a => a.PositionId == this.PositionId && a.Status != ApplicationStatus.Removed));
             }
         }
 
@@ -115,7 +123,7 @@ namespace Careers.Models
             {
                 return user != null
                     && user.Roles.Any(r => r.Name == User.CANDIDATE)
-                    && user.Applications.Any(a => a.PositionId == this.PositionId);
+                    && user.Applications.Any(a => a.PositionId == this.PositionId && a.Status != ApplicationStatus.Removed);
             }
         }
     }

@@ -1,41 +1,59 @@
 ﻿@model Careers.Models.PositionViewModel
+@using GridMvc.Html
+
 @{
-    ViewBag.Title = "Careers";
+    ViewBag.Title = "View Position";
 }
 
-<h2>@Html.DisplayFor(score => Model.Title)</h2>
+<h2>@Model.Title</h2>
+<hr />
 
-<div>
-    <p>@Model.Description</p>
+<div class="row">
+    <div class="col-md-10">
+        <p>@Model.Description</p>
 
-    @if (Model.CanViewApplications) {
-        <h3>Applicants:</h3>
-        <table>
-            @foreach (var item in Model.Applications)
+        @if (Model.CanViewApplications)
+        {
+            <h3>Applicants</h3>
+            @Html.Grid(Model.Applications).Columns(columns =>
+                  {
+                      columns.Add()
+                          .Sanitized(false)
+                          .Encoded(false)
+                          .Titled("Candidate")
+                          .Sortable(true)
+                          .RenderValueAs(a => Html.ActionLink(a.User.FullName, "Details", "Application", new { id = a.Id }, new { }));
+                      columns.Add(a => a.Status)
+                          .Titled("Status")
+                          .Filterable(true)
+                          .Sortable(true);
+                      columns.Add(a => a.AppliedOn)
+                          .Titled("Applied On")
+                          .Sortable(true)
+                          .RenderValueAs(a => a.AppliedOn.ToShortDateString());
+                  }).WithPaging(25);
+
+        }
+        @if (Model.HasAppliedToPosition)
+        {
+            <p>You @Html.ActionLink("applied", "Details", "Application", new { id = Model.UserApplicationId }, new { }) to this position on @Model.UserAppliedOn.ToShortDateString()</p>
+        }
+    </div>
+    <div class="col-md-2">
+        <div class="btn-group-vertical">
+            @if (Model.CanApplyToPosition)
             {
-                <tr>
-                    <td>@Html.ActionLink(item.User.UserName, "Details", "Application", new { id = item.Id }, new { })</td>
-                    <td>@item.Status</td>
-                    <td>@item.AppliedOn.ToShortDateString()</td>
-                </tr>
+                @Html.ActionLink("Apply", "Create", "Application", new { id = Model.PositionId }, new { @class = "btn btn-default" })
             }
-        </table>
-    }
-    @if (Model.HasAppliedToPosition)
-    {
-        <p>You @Html.ActionLink("applied", "Details", "Application", new { id = Model.UserApplicationId }, new { }) to this position on @Model.UserAppliedOn.ToShortDateString()</p>
-    }
-    <h3>Actions:</h3>
-    <ul>
-        @if (Model.CanApplyToPosition) 
-        {
-            <li>@Html.ActionLink("Apply", "Create", "Application", new { id = Model.PositionId }, new { })</li>
-        }
-        @if (Model.CanModifyPosition) 
-        {
-            <li>@Html.ActionLink("Edit", "Edit", "Position", new { id = Model.PositionId }, new { })</li>
-        }
-        <li>@Html.ActionLink("Return To Listing", "Index", "Position", new { id = Model.PositionId }, new { })</li>
-    </ul>
+            @if (Model.CanRemoveApplication)
+            {
+                @Html.ActionLink("Remove", "Remove", "Application", new { id = Model.UserApplicationId }, new { onclick = "return confirm('Are you sure you want to remove this application?')", @class = "btn btn-default" })
+            }
+            @if (Model.CanModifyPosition)
+            {
+                @Html.ActionLink("Edit", "Edit", "Position", new { id = Model.PositionId }, new { @class = "btn btn-default" })
+            }
+            @Html.ActionLink("Return To Listing", "Index", "Position", new { id = Model.PositionId }, new { @class = "btn btn-default" })
+        </div>
+    </div>
 </div>
-

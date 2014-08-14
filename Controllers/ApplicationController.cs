@@ -133,5 +133,27 @@ namespace Careers.Controllers
                 return View();
             }
         }
+
+        //
+        // POST: /Application/Remove/5
+        public ActionResult Remove(int id)
+        {
+            try
+            {
+                var application = context.Applications.SingleOrDefault(a => a.Id == id);
+                var user = userManager.FindById(User.Identity.GetUserId());
+                //TODO: handler error scenarios
+
+                application.Status = ApplicationStatus.Removed;
+
+                context.SaveChanges();
+
+                return RedirectToAction("Index");
+            }
+            catch
+            {
+                return View();
+            }
+        }
     }
 }

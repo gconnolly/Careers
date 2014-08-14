@@ -17,8 +17,7 @@ namespace Careers.Models
         public ApplicationListingViewModel(IQueryable<Application> applications, User user)
         {
             this.user = user;
-
-            Applications = applications.Where(a => a.UserId == user.Id);
+            this.Applications = applications.Where(a => a.UserId == user.Id && a.Status != ApplicationStatus.Removed).OrderBy(a => a.AppliedOn);
         }
 
         public IEnumerable<Application> Applications { get; private set; }
@@ -33,7 +32,6 @@ namespace Careers.Models
         public ApplicationViewModel(Application application, User user)
         {
             this.user = user;
-
             this.ApplicationId = application.Id;
             this.PositionId = application.Position.Id;
             this.ResumeId = application.ResumeId;

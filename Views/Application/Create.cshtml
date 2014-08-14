@@ -1,10 +1,11 @@
 ﻿@model Careers.Models.ApplicationViewModel
 
 @{
-    ViewBag.Title = "Careers";
+    ViewBag.Title = "Add New Position";
 }
 
 <h2>Apply to @Model.PositionTitle</h2>
+<hr />
 
 @using (Html.BeginForm("Create", "Application", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", role = "form" }))
 {

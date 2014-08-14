@@ -1,22 +1,29 @@
 ﻿@model Careers.Models.PositionListingViewModel
+@using GridMvc.Html
 @{
-    ViewBag.Title = "Careers";
+    ViewBag.Title = "Open Jobs";
 }
 
-<h2>Careers</h2>
-<div>
-    @foreach (var item in Model.Positions)
-    {
-        <a href="@Url.Action("Details", "Position", new { id = item.Id })">
-            <h3>@Html.DisplayFor(score => item.Title)</h3>
-        </a>
-        <p>@Html.DisplayFor(score => item.Description)</p>
-    }
+<h2>Open Jobs</h2>
+<hr/>
+<div class="row">
+    <div class="col-md-10">
+        @Html.Grid(Model.Positions).Columns(columns =>
+                    {
+                        columns.Add()
+                            .Sanitized(false)
+                            .Encoded(false)
+                            .Sortable(true)
+                            .RenderValueAs(p => Html.ActionLink(p.Title, "Details", "Position", new { id = p.Id }, new { }));
+                    }).WithPaging(25);
+    </div>
+    <div class="col-md-2">
+        @if (Model.CanAddPosition)
+        {
+            <div class="btn-group-vertical">
+                @Html.ActionLink("Create New Position", "Create", "Position", new { @class = "btn btn-default" })
+            </div>
+        }
+    </div>
+ </div>
 
-    @if(Model.CanAddPosition) {
-        <h3>Actions:</h3>
-        <ul>
-            <li>@Html.ActionLink("Create New Position", "Create", "Position")</li>
-        </ul>
-    }
-</div>

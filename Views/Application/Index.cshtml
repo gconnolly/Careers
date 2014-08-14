@@ -1,20 +1,25 @@
 ﻿@model Careers.Models.ApplicationListingViewModel
+@using GridMvc.Html
+
 @{
     ViewBag.Title = "Careers";
 }
 
-<h2>Careers</h2>
-<div>
+<h2>My Applications</h2>
+<hr />
 
-        <h3>Applications:</h3>
-        <table>
-            @foreach (var item in Model.Applications)
-            {
-                <tr>
-                    <td>@Html.ActionLink(item.Position.Title, "Details", "Application", new { id = item.Id }, new { })</td>
-                    <td>@item.Status</td>
-                    <td>@item.AppliedOn.ToShortDateString()</td>
-                </tr>
-            }
-        </table>
+<div>
+    @Html.Grid(Model.Applications).Columns(columns =>
+                    {
+                        columns.Add()
+                            .Sanitized(false)
+                            .Encoded(false)
+                            .Titled("Candidate")
+                            .Sortable(true)
+                            .RenderValueAs(a => Html.ActionLink(a.Position.Title, "Details", "Application", new { id = a.Id }, new { }));
+                        columns.Add(a => a.AppliedOn)
+                            .Titled("Applied On")
+                            .Sortable(true)
+                            .RenderValueAs(a => a.AppliedOn.ToShortDateString());
+                    }).WithPaging(25);
 </div>
