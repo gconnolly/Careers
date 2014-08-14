@@ -2,14 +2,14 @@
 @using GridMvc.Html
 
 @{
-    ViewBag.Title = "Careers";
+    ViewBag.Title = "My Applications";
 }
 
 <h2>My Applications</h2>
 <hr />
-
-<div>
-    @Html.Grid(Model.Applications).Columns(columns =>
+<div class="row">
+    <div class="col-md-12">
+        @Html.Grid(Model.Applications).Columns(columns =>
                     {
                         columns.Add()
                             .Sanitized(false)
@@ -23,6 +23,7 @@
                             .RenderValueAs(a => a.AppliedOn.ToShortDateString());
                         columns.Add(a => a.Position.Status)
                             .Titled("Position Status")
-                            .Sortable(true);                        
+                            .Sortable(true);
                     }).WithPaging(25)
+    </div>
 </div>

@@ -1,26 +1,47 @@
 ﻿@model Careers.Models.ApplicationViewModel
 
 @{
-    ViewBag.Title = "Add New Position";
+    ViewBag.Title = Model.PositionTitle;
 }
 
 <h2>Apply to @Model.PositionTitle</h2>
 <hr />
+<div class="row">
+    <div class="col-md-12">
+        @using (Html.BeginForm("Create", "Application", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", role = "form" }))
+        {
+            <div class="form-group">
+                @Html.LabelFor(m => m.PositionTitle, new { @class = "col-md-3 control-label" })
+                <div class="col-md-9">
+                    <p class="form-control-static">@Model.PositionTitle</p>
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(m => m.UserName, new { @class = "col-md-3 control-label" })
+                <div class="col-md-9">
+                    <p class="form-control-static">@Model.UserName</p>
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(m => m.EmailAddress, new { @class = "col-md-3 control-label" })
+                <div class="col-md-9">
+                    <p class="form-control-static">@Model.EmailAddress</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">PDF Resume</label>
+                <div class="col-md-9">
+                    <input type="file" name="file" accept="application/pdf" />
+                </div>
+            </div>
 
-@using (Html.BeginForm("Create", "Application", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", role = "form" }))
-{
-    <div class="form-group">
-        <label class="col-md-2 control-label">Upload Resume</label>
-        <div class="col-md-10">
-            <input type="file" name="file" accept="application/pdf" />
             @Html.HiddenFor(m => m.PositionId)
             @Html.HiddenFor(m => m.UserId)
-        </div>
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Upload" class="btn btn-default" />
+                </div>
+            </div>
+        }
     </div>
-    
-    <div class="form-group">
-        <div class="col-md-offset-2 col-md-10">
-            <input type="submit" value="Upload" class="btn btn-default" />
-        </div>
-    </div>
-}
+</div>
