@@ -32,7 +32,11 @@ namespace Careers.Controllers
         public ActionResult Index()
         {
             var user = userManager.FindById(User.Identity.GetUserId());
-            //TODO: handler error scenarios
+            if (user == null)
+            {
+                //Unable to find user: return to start
+                return RedirectToAction("Index", "Position", new { });
+            }
 
             return View(new Careers.Models.ApplicationListingViewModel(context.Applications, user));
         }
@@ -43,7 +47,13 @@ namespace Careers.Controllers
         {
             var application = context.Applications.SingleOrDefault(a => a.Id == id);
             var user = userManager.FindById(User.Identity.GetUserId());
-            //TODO: handler error scenarios
+            if (user == null 
+                || application == null 
+                || (application.UserId != user.Id && !user.IsEmployee))
+            {
+                //Unable to find user or application, or unauthorized: return to start
+                return RedirectToAction("Index", "Position", new { });
+            }
 
             return View(new Careers.Models.ApplicationViewModel(application, user));
         }
@@ -52,9 +62,15 @@ namespace Careers.Controllers
         // GET: /Application/Create/5
         public ActionResult Create(int id)
         {
-            var position = context.Positions.Single(p => p.Id == id);
+            var position = context.Positions.SingleOrDefault(p => p.Id == id);
             var user = userManager.FindById(User.Identity.GetUserId());
-            //TODO: handler error scenarios
+            if (user == null
+                || position == null
+                || !user.IsEmployee)
+            {
+                //Unable to find user or application, or unauthorized: return to start
+                return RedirectToAction("Index", "Position", new { });
+            }
 
             var application = new Application
             {
@@ -106,7 +122,13 @@ namespace Careers.Controllers
         {
             var application = context.Applications.SingleOrDefault(a => a.Id == id);
             var user = userManager.FindById(User.Identity.GetUserId());
-            //TODO: handler error scenarios
+            if (user == null
+                || application == null
+                || (application.UserId != user.Id && !user.IsEmployee))
+            {
+                //Unable to find user or application, or unauthorized: return to start
+                return RedirectToAction("Index", "Position", new { });
+            }
 
             return View(new Careers.Models.ApplicationViewModel(application, user));
         }
@@ -116,12 +138,19 @@ namespace Careers.Controllers
         [HttpPost]
         public ActionResult Edit(int id, ApplicationViewModel applicationViewModel)
         {
+            var application = context.Applications.SingleOrDefault(a => a.Id == id);
+            var user = userManager.FindById(User.Identity.GetUserId());
+
+            if (user == null
+                || application == null
+                || (application.UserId != user.Id && !user.IsEmployee))
+            {
+                //Unable to find user or application, or unauthorized: return to start
+                return RedirectToAction("Index", "Position", new { });
+            }
+
             try
             {
-                var application = context.Applications.SingleOrDefault(a => a.Id == id);
-                var user = userManager.FindById(User.Identity.GetUserId());
-                //TODO: handler error scenarios
-
                 application.Status = applicationViewModel.ApplicationStatus;
 
                 context.SaveChanges();
@@ -138,12 +167,19 @@ namespace Careers.Controllers
         // POST: /Application/Remove/5
         public ActionResult Remove(int id)
         {
+            var application = context.Applications.SingleOrDefault(a => a.Id == id);
+            var user = userManager.FindById(User.Identity.GetUserId());
+
+            if (user == null
+                || application == null
+                || application.UserId != user.Id)
+            {
+                //Unable to find user or application, or unauthorized: return to start
+                return RedirectToAction("Index", "Position", new { });
+            }
+
             try
             {
-                var application = context.Applications.SingleOrDefault(a => a.Id == id);
-                var user = userManager.FindById(User.Identity.GetUserId());
-                //TODO: handler error scenarios
-
                 application.Status = ApplicationStatus.Removed;
 
                 context.SaveChanges();

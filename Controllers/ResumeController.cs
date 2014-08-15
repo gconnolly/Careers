@@ -33,6 +33,16 @@ namespace Careers.Controllers
         public ActionResult View(int id)
         {
             var resume = context.Resumes.SingleOrDefault(r => r.Id == id);
+            var user = userManager.FindById(User.Identity.GetUserId());
+            if (user == null
+                || resume == null
+                || (resume.UserId != user.Id && !user.IsEmployee))
+            {
+                //Unable to find user or resume, or unauthorized: return to start
+                return RedirectToAction("Index", "Position", new { });
+            }
+
+
             return new FileContentResult(resume.Document, PDFMIMETYPE);
         }
 

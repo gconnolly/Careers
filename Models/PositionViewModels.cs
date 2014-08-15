@@ -31,7 +31,7 @@ namespace Careers.Models
             get
             {
                 return user != null
-                    && user.Roles.Any(r => r.Name == User.EMPLOYEE);
+                    && user.IsEmployee;
             }
         }
 
@@ -39,7 +39,7 @@ namespace Careers.Models
         {
             get
             {
-                return user != null && user.Roles.Any(r => r.Name == User.EMPLOYEE);
+                return user != null && user.IsEmployee;
             }
         }
     }
@@ -107,7 +107,7 @@ namespace Careers.Models
         {
             get
             {
-                return user != null && user.Roles.Any(r => r.Name == User.EMPLOYEE);
+                return user != null && user.IsEmployee;
             }
         }
 
@@ -115,7 +115,7 @@ namespace Careers.Models
         {
             get
             {
-                return user != null && user.Roles.Any(r => r.Name == User.EMPLOYEE);
+                return user != null && user.IsEmployee;
             }
         }
 
@@ -124,7 +124,7 @@ namespace Careers.Models
             get
             {
                 return user == null
-                    || (user.Roles.Any(r => r.Name == User.CANDIDATE)
+                    || (user.IsCandidate
                     && !user.Applications.Any(a => a.PositionId == this.PositionId && a.Status != ApplicationStatus.Removed));
             }
         }
@@ -134,7 +134,7 @@ namespace Careers.Models
             get
             {
                 return user != null
-                    && user.Roles.Any(r => r.Name == User.CANDIDATE)
+                    && user.IsCandidate
                     && user.Applications.Any(a => a.PositionId == this.PositionId && a.Status != ApplicationStatus.Removed);
             }
         }
@@ -144,7 +144,7 @@ namespace Careers.Models
             get
             {
                 return user != null
-                    && user.Roles.Any(r => r.Name == User.CANDIDATE)
+                    && user.IsCandidate
                     && user.Applications.Any(a => a.PositionId == this.PositionId && a.Status != ApplicationStatus.Removed);
             }
         }

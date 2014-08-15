@@ -114,7 +114,7 @@ namespace Careers.Models
             get
             {
                 return user != null
-                    && user.Roles.Any(r => r.Name == User.EMPLOYEE);
+                    && user.IsEmployee;
             }
         }
 
@@ -123,7 +123,7 @@ namespace Careers.Models
             get
             {
                 return user != null
-                    && user.Roles.Any(r => r.Name == User.CANDIDATE)
+                    && user.IsCandidate
                     && user.Id == UserId;
             }
         }

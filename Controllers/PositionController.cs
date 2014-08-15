@@ -33,7 +33,6 @@ namespace Careers.Models
         {
             var positions = context.Positions;
             var user = userManager.FindById(User.Identity.GetUserId());
-            //TODO: handler error scenarios
 
             return View(new PositionListingViewModel(positions, user));
         }
@@ -45,7 +44,11 @@ namespace Careers.Models
         {
             var position = context.Positions.Single(p => p.Id == id);
             var user = userManager.FindById(User.Identity.GetUserId());
-            //TODO: handler error scenarios
+            if (position == null)
+            {
+                //Unable to find position, or unauthorized: return to start
+                return RedirectToAction("Index", "Position", new { });
+            }
 
             return View(new PositionViewModel(position, user));
         }
@@ -54,14 +57,13 @@ namespace Careers.Models
         // GET: /Position/Create
         public ActionResult Create()
         {
-            if (!User.Identity.IsAuthenticated || !userManager.IsInRole(User.Identity.GetUserId(), Careers.Models.User.EMPLOYEE))
-            {
-                return RedirectToAction("Index");
-            }
-
             var position = new Position();
             var user = userManager.FindById(User.Identity.GetUserId());
-            //TODO: handler error scenarios
+            if (user == null || !user.IsEmployee)
+            {
+                //Unable to find user or position, or unauthorized: return to start
+                return RedirectToAction("Index", "Position", new { });
+            }
 
             return View(new PositionViewModel(position, user));
         }
@@ -71,9 +73,11 @@ namespace Careers.Models
         [HttpPost]
         public ActionResult Create(PositionViewModel positionViewModel)
         {
-            if (!User.Identity.IsAuthenticated || !userManager.IsInRole(User.Identity.GetUserId(), Careers.Models.User.EMPLOYEE))
+            var user = userManager.FindById(User.Identity.GetUserId());
+            if (user == null || !user.IsEmployee)
             {
-                return RedirectToAction("Index");
+                //Unable to find user or position, or unauthorized: return to start
+                return RedirectToAction("Index", "Position", new { });
             }
 
             try
@@ -99,14 +103,16 @@ namespace Careers.Models
         // GET: /Position/Edit/5
         public ActionResult Edit(int id)
         {
-            if(!User.Identity.IsAuthenticated || !userManager.IsInRole(User.Identity.GetUserId(), Careers.Models.User.EMPLOYEE))
+            var position = context.Positions.SingleOrDefault(p => p.Id == id);
+            var user = userManager.FindById(User.Identity.GetUserId());
+            if (user == null 
+                || position == null
+                || !user.IsEmployee)
             {
-                return RedirectToAction("Index");
+                //Unable to find user or position, or unauthorized: return to start
+                return RedirectToAction("Index", "Position", new { });
             }
 
-            var position = context.Positions.Single(p => p.Id == id);
-            var user = userManager.FindById(User.Identity.GetUserId());
-            //TODO: handler error scenarios
 
             return View(new PositionViewModel(position, user));
         }
@@ -116,17 +122,18 @@ namespace Careers.Models
         [HttpPost]
         public ActionResult Edit(int id, PositionViewModel positionViewModel)
         {
-            if (!User.Identity.IsAuthenticated || !userManager.IsInRole(User.Identity.GetUserId(), Careers.Models.User.EMPLOYEE))
+            var position = context.Positions.Single(p => p.Id == id);
+            var user = userManager.FindById(User.Identity.GetUserId());
+            if (user == null
+                || position == null
+                || !user.IsEmployee)
             {
-                return RedirectToAction("Index");
+                //Unable to find user or position, or unauthorized: return to start
+                return RedirectToAction("Index", "Position", new { });
             }
 
             try
             {
-                var position = context.Positions.Single(p => p.Id == id);
-                var user = userManager.FindById(User.Identity.GetUserId());
-                //TODO: handler error scenarios
-
                 position.Description = positionViewModel.Description;
                 position.Title = positionViewModel.Title;
                 position.Status = positionViewModel.Status;

@@ -21,12 +21,15 @@ namespace Careers.Models
 
         public Task AddLoginAsync(User user, UserLoginInfo login)
         {
-            user.UserLogins.Add(new UserLogin
-                {
-                    UserId = user.Id,
-                    LoginProvider = login.LoginProvider,
-                    ProviderKey = login.ProviderKey
-                });
+            if (user != null && login != null)
+            {
+                user.UserLogins.Add(new UserLogin
+                    {
+                        UserId = user.Id,
+                        LoginProvider = login.LoginProvider,
+                        ProviderKey = login.ProviderKey
+                    });
+            }
 
             return context.SaveChangesAsync();
         }
@@ -46,37 +49,34 @@ namespace Careers.Models
 
         public Task RemoveLoginAsync(User user, UserLoginInfo login)
         {
-            user.UserLogins.Remove(user.UserLogins.Single(l => l.ProviderKey == login.LoginProvider && l.LoginProvider == login.LoginProvider));
+            var userLogin = user.UserLogins.SingleOrDefault(l => l.ProviderKey == login.LoginProvider && l.LoginProvider == login.LoginProvider);
+
+            if(userLogin != null)
+            {
+                user.UserLogins.Remove(userLogin);
+            }
+            
             return context.SaveChangesAsync();
         }
 
         public Task CreateAsync(User user)
         {
-            context.Users.Add(user);
-            try
+            if(user != null)
             {
-                return context.SaveChangesAsync();
+                context.Users.Add(user);
             }
-            catch (DbEntityValidationException e)
-            {
-                foreach (var eve in e.EntityValidationErrors)
-                {
-                    Console.WriteLine("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:",
-                        eve.Entry.Entity.GetType().Name, eve.Entry.State);
-                    foreach (var ve in eve.ValidationErrors)
-                    {
-                        Console.WriteLine("- Property: \"{0}\", Error: \"{1}\"",
-                            ve.PropertyName, ve.ErrorMessage);
-                    }
-                }
-                throw;
-            }
+            
+            return context.SaveChangesAsync();
             
         }
 
         public Task DeleteAsync(User user)
         {
-            context.Users.Remove(user);
+            if (user != null)
+            {
+                context.Users.Remove(user);
+            }
+
             return context.SaveChangesAsync();
         }
 
@@ -114,7 +114,11 @@ namespace Careers.Models
         public Task AddToRoleAsync(User user, string role)
         {
             var roleEntity = context.Roles.SingleOrDefault(r => r.Name == role);
-            roleEntity.Users.Add(user);
+
+            if(roleEntity != null && user != null)
+            {
+                roleEntity.Users.Add(user);
+            }
 
             return context.SaveChangesAsync();
         }
@@ -131,7 +135,12 @@ namespace Careers.Models
 
         public Task RemoveFromRoleAsync(User user, string role)
         {
-            user.Roles.Remove(user.Roles.Single(r => r.Name == role));
+            var roleEntity = context.Roles.SingleOrDefault(r => r.Name == role);
+
+            if (roleEntity != null && user != null)
+            {
+                user.Roles.Remove(roleEntity);
+            }
 
             return context.SaveChangesAsync();
         }

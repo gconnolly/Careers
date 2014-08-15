@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using System.Linq;
 
 namespace Careers.Models
 {
@@ -22,6 +23,22 @@ namespace Careers.Models
             set
             {
                 this.FullName = value;
+            }
+        }
+
+        public bool IsEmployee
+        {
+            get
+            {
+                return this.Roles.Any(r => r.Name == EMPLOYEE);
+            }
+        }
+
+        public bool IsCandidate
+        {
+            get
+            {
+                return this.Roles.Any(r => r.Name == CANDIDATE);
             }
         }
     }
