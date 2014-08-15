@@ -66,7 +66,7 @@ namespace Careers.Controllers
             var user = userManager.FindById(User.Identity.GetUserId());
             if (user == null
                 || position == null
-                || !user.IsEmployee)
+                || !user.IsCandidate)
             {
                 //Unable to find user or application, or unauthorized: return to start
                 return RedirectToAction("Index", "Position", new { });

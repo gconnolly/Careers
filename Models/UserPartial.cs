@@ -18,11 +18,11 @@ namespace Careers.Models
         {
             get
             {
-                return this.FullName;
+                return this.EmailAddress;
             }
             set
             {
-                this.FullName = value;
+                this.EmailAddress = value;
             }
         }
 
