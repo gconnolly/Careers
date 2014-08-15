@@ -26,6 +26,8 @@ namespace Careers.Models
 
         public IEnumerable<Position> Positions { get; private set; }
 
+        #region Privileges
+
         public bool CanAddPosition
         {
             get
@@ -42,6 +44,8 @@ namespace Careers.Models
                 return user != null && user.IsEmployee;
             }
         }
+
+        #endregion
     }
 
     public class PositionViewModel
@@ -75,9 +79,7 @@ namespace Careers.Models
             
         }
 
-        public int UserApplicationId { get; private set; }
-
-        public DateTime UserAppliedOn { get; private set; }
+        #region Properties
 
         [Required]
         [DataType(DataType.Text)]
@@ -99,9 +101,17 @@ namespace Careers.Models
         [Display(Name = "Status")]
         public PositionStatus Status { get; set; }
 
+        public int UserApplicationId { get; private set; }
+
+        public DateTime UserAppliedOn { get; private set; }
+
         public IEnumerable<ApplicationListItemViewModel> Applications { get; private set; }
 
         public ApplicationStatus ApplicationStatusFilter { get; set; }
+
+        #endregion
+
+        #region Privileges
 
         public bool CanModifyPosition
         {
@@ -148,5 +158,7 @@ namespace Careers.Models
                     && user.Applications.Any(a => a.PositionId == this.PositionId && a.Status != ApplicationStatus.Removed);
             }
         }
+
+        #endregion
     }
 }

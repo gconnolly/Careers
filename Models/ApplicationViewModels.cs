@@ -17,7 +17,9 @@ namespace Careers.Models
         public ApplicationListingViewModel(IQueryable<Application> applications, User user)
         {
             this.user = user;
-            this.Applications = applications.Where(a => a.UserId == user.Id && a.Status != ApplicationStatus.Removed).OrderBy(a => a.AppliedOn);
+            this.Applications = applications
+                                    .Where(a => a.UserId == user.Id && a.Status != ApplicationStatus.Removed)
+                                    .OrderBy(a => a.AppliedOn);
         }
 
         public IEnumerable<Application> Applications { get; private set; }
@@ -35,10 +37,17 @@ namespace Careers.Models
             this.AppliedOn = application.AppliedOn.ToShortDateString();
         }
 
+        #region Properties
+
         public int Id { get; set; }
+
         public string UserName { get; set; }
+
         public string Status { get; set; }
+
         public string AppliedOn { get; set; }
+
+        #endregion
     }
 
     public class ApplicationViewModel
@@ -62,13 +71,7 @@ namespace Careers.Models
             this.AppliedOn = application.AppliedOn;
         }
 
-        public int UserId { get; set; }
-
-        public int PositionId { get; set; }
-
-        public int ResumeId { get; private set; }
-
-        public int ApplicationId { get; private set; }
+        #region Properties
 
         [Required]
         [DataType(DataType.Text)]
@@ -109,6 +112,18 @@ namespace Careers.Models
             }
         }
 
+        public int UserId { get; set; }
+
+        public int PositionId { get; set; }
+
+        public int ResumeId { get; private set; }
+
+        public int ApplicationId { get; private set; }
+
+        #endregion
+        
+        #region Privileges
+
         public bool CanViewEditApplicationStatus
         {
             get
@@ -127,5 +142,7 @@ namespace Careers.Models
                     && user.Id == UserId;
             }
         }
+
+        #endregion
     }
 }

@@ -16,6 +16,8 @@ namespace Careers.Controllers
     [RequireHttps]
     public class AccountController : Controller
     {
+        const string EMPLOYEEEMAILDOMAIN = "@xamarin.com";
+
         public AccountController()
             : this(new UserManager<User>(new Careers.Models.UserStore(new ApplicationDbContext())))
         {
@@ -84,13 +86,13 @@ namespace Careers.Controllers
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    if(user.EmailAddress.EndsWith("@xamarin.com"))
+                    if (user.EmailAddress.EndsWith(EMPLOYEEEMAILDOMAIN))
                     {
-                        await UserManager.AddToRoleAsync(user.Id.ToString(), "employee");
+                        await UserManager.AddToRoleAsync(user.Id.ToString(), Careers.Models.User.EMPLOYEE);
                     } 
                     else 
                     {
-                        await UserManager.AddToRoleAsync(user.Id.ToString(), "candidate");
+                        await UserManager.AddToRoleAsync(user.Id.ToString(), Careers.Models.User.CANDIDATE);
                     }
 
                     await SignInAsync(user, isPersistent: false);
@@ -283,13 +285,13 @@ namespace Careers.Controllers
                     result = await UserManager.AddLoginAsync(user.Id.ToString(), info.Login);
                     if (result.Succeeded)
                     {
-                        if (user.EmailAddress.EndsWith("@xamarin.com"))
+                        if (user.EmailAddress.EndsWith(EMPLOYEEEMAILDOMAIN))
                         {
-                            await UserManager.AddToRoleAsync(user.Id.ToString(), "employee");
+                            await UserManager.AddToRoleAsync(user.Id.ToString(), Careers.Models.User.EMPLOYEE);
                         }
                         else
                         {
-                            await UserManager.AddToRoleAsync(user.Id.ToString(), "candidate");
+                            await UserManager.AddToRoleAsync(user.Id.ToString(), Careers.Models.User.CANDIDATE);
                         }
 
                         await SignInAsync(user, isPersistent: false);
