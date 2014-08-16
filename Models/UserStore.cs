@@ -82,12 +82,16 @@ namespace Careers.Models
 
         public Task<User> FindByIdAsync(string userId)
         {
-            return context.Users.SingleOrDefaultAsync(u => u.Id.ToString() == userId);
+            var user = context.Users.SingleOrDefault(u => u.Id.ToString() == userId);
+
+            return Task.Run(() => user);
         }
 
         public Task<User> FindByNameAsync(string userName)
         {
-            return context.Users.SingleOrDefaultAsync(u => u.EmailAddress == userName);
+            var user = context.Users.SingleOrDefault(u => u.EmailAddress == userName);
+
+            return Task.Run(() => user);
         }
 
         public Task UpdateAsync(User user)

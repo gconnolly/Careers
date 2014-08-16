@@ -26,11 +26,11 @@ namespace Careers.Models
             throw new UnintentionalCodeFirstException();
         }
     
-        public virtual DbSet<Application> Applications { get; set; }
-        public virtual DbSet<Position> Positions { get; set; }
-        public virtual DbSet<Resume> Resumes { get; set; }
-        public virtual DbSet<Role> Roles { get; set; }
-        public virtual DbSet<UserLogin> UserLogins { get; set; }
-        public virtual DbSet<User> Users { get; set; }
+        public virtual IDbSet<Application> Applications { get; set; }
+        public virtual IDbSet<Position> Positions { get; set; }
+        public virtual IDbSet<Resume> Resumes { get; set; }
+        public virtual IDbSet<Role> Roles { get; set; }
+        public virtual IDbSet<UserLogin> UserLogins { get; set; }
+        public virtual IDbSet<User> Users { get; set; }
     }
 }

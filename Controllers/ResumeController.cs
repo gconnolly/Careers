@@ -15,7 +15,7 @@ namespace Careers.Controllers
     {
         private readonly ApplicationDbContext context;
         private readonly UserManager<User> userManager;
-        private const string PDFMIMETYPE = "application/pdf";
+        public const string PDFMIMETYPE = "application/pdf";
         
         public ResumeController()
             : this(new ApplicationDbContext(), a => new UserManager<User>(new Careers.Models.UserStore(a)))
