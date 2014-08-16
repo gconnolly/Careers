@@ -1,4 +1,4 @@
-﻿@model Careers.Models.ApplicationViewModel
+﻿@model Careers.Models.ApplicationCreateViewModel
 
 @{
     ViewBag.Title = Model.PositionTitle;
@@ -10,33 +10,54 @@
     <div class="col-md-12">
         @using (Html.BeginForm("Create", "Application", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", role = "form" }))
         {
+            @Html.ValidationSummary()
             <div class="form-group">
                 @Html.LabelFor(m => m.PositionTitle, new { @class = "col-md-3 control-label" })
                 <div class="col-md-9">
                     <p class="form-control-static">@Model.PositionTitle</p>
+                    @Html.HiddenFor(m => m.PositionTitle)
                 </div>
             </div>
             <div class="form-group">
-                @Html.LabelFor(m => m.UserName, new { @class = "col-md-3 control-label" })
+                @Html.LabelFor(m => m.FullName, new { @class = "col-md-3 control-label" })
                 <div class="col-md-9">
-                    <p class="form-control-static">@Model.UserName</p>
+                    <p class="form-control-static">@Model.FullName</p>
+                    @Html.HiddenFor(m => m.FullName)
                 </div>
             </div>
             <div class="form-group">
                 @Html.LabelFor(m => m.EmailAddress, new { @class = "col-md-3 control-label" })
                 <div class="col-md-9">
                     <p class="form-control-static">@Model.EmailAddress</p>
+                    @Html.HiddenFor(m => m.EmailAddress)
+                </div>
+            </div>
+            if(Model.HasDefaultResume){
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <div class="radio">
+                        @Html.RadioButtonFor(m => m.UseNewResume, false) Use @Html.ActionLink("Default PDF Resume", "View", "Resume", new { id = Model.UserDefaultResumeId.Value }, new { target = "_blank"})
+                    </div>
                 </div>
             </div>
             <div class="form-group">
-                <label class="col-md-3 control-label">PDF Resume</label>
-                <div class="col-md-9">
+                <div class="col-md-offset-2 col-md-10">
+                    <div class="radio">
+                        @Html.RadioButtonFor(m => m.UseNewResume, true) Upload New PDF Resume
+                    </div>
+                </div>
+            </div>
+            }
+            <div class="form-group">
+                <div class="col-md-offset-3 col-md-9">
                     <input type="file" name="file" accept="application/pdf" />
                 </div>
             </div>
-
+            @Html.HiddenFor(m => m.HasDefaultResume)
             @Html.HiddenFor(m => m.PositionId)
             @Html.HiddenFor(m => m.UserId)
+            @Html.HiddenFor(m => m.UserDefaultResumeId)
+            @Html.HiddenFor(m => m.UseNewResume)
             <div class="form-group">
                 <div class="col-md-offset-2 col-md-10">
                     <input type="submit" value="Upload" class="btn btn-default" />

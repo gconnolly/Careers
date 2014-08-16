@@ -41,9 +41,46 @@ namespace Careers.Controllers
                 //Unable to find user or resume, or unauthorized: return to start
                 return RedirectToAction("Index", "Position", new { });
             }
-
-
+            
             return new FileContentResult(resume.Document, PDFMIMETYPE);
+        }
+
+        public ActionResult SetDefault(int resumeId, int applicationId)
+        {
+            var resume = context.Resumes.SingleOrDefault(r => r.Id == resumeId);
+            var user = userManager.FindById(User.Identity.GetUserId());
+            if (user == null
+                || resume == null
+                || resume.UserId != user.Id)
+            {
+                //Unable to find user or resume, or unauthorized: return to start
+                return RedirectToAction("Index", "Position", new { });
+            }
+
+            user.DefaultResumeId = resumeId;
+
+            context.SaveChanges();
+
+            return RedirectToAction("Details", "Application", new { id = applicationId });
+        }
+
+        public ActionResult ClearDefault(int resumeId, int applicationId)
+        {
+            var resume = context.Resumes.SingleOrDefault(r => r.Id == resumeId);
+            var user = userManager.FindById(User.Identity.GetUserId());
+            if (user == null
+                || resume == null
+                || resume.UserId != user.Id)
+            {
+                //Unable to find user or resume, or unauthorized: return to start
+                return RedirectToAction("Index", "Position", new { });
+            }
+
+            user.DefaultResumeId = null;
+
+            context.SaveChanges();
+
+            return RedirectToAction("Details", "Application", new { id = applicationId });
         }
 
         public static bool IsValidContentType(string contentType)

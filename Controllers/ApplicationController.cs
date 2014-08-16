@@ -15,7 +15,7 @@ namespace Careers.Controllers
     {
         private readonly ApplicationDbContext context;
         private readonly UserManager<User> userManager;
-        
+
         public ApplicationController()
             : this(new ApplicationDbContext(), a => new UserManager<User>(new Careers.Models.UserStore(a)))
         {
@@ -47,15 +47,15 @@ namespace Careers.Controllers
         {
             var application = context.Applications.SingleOrDefault(a => a.Id == id);
             var user = userManager.FindById(User.Identity.GetUserId());
-            if (user == null 
-                || application == null 
+            if (user == null
+                || application == null
                 || (application.UserId != user.Id && !user.IsEmployee))
             {
                 //Unable to find user or application, or unauthorized: return to start
                 return RedirectToAction("Index", "Position", new { });
             }
 
-            return View(new Careers.Models.ApplicationViewModel(application, user));
+            return View(new Careers.Models.ApplicationDetailViewModel(application, user));
         }
 
         //
@@ -72,48 +72,53 @@ namespace Careers.Controllers
                 return RedirectToAction("Index", "Position", new { });
             }
 
-            var application = new Application
-            {
-                Position = position,
-                User = user,
-                Status = ApplicationStatus.New,
-                AppliedOn = DateTime.Now.Date
-            };
-
-            return View(new Careers.Models.ApplicationViewModel(application, user));
+            return View(new Careers.Models.ApplicationCreateViewModel(position, user));
         }
 
         //
         // POST: /Application/Create
         [HttpPost]
-        public ActionResult Create(ApplicationViewModel applicationViewModel, HttpPostedFileBase file)
+        public ActionResult Create(ApplicationCreateViewModel applicationCreateViewModel, HttpPostedFileBase file)
         {
-            //Only accept PDF file types
-            if (!ResumeController.IsValidContentType(file.ContentType)) { return View(); }
-
-            try
+            if (ModelState.IsValid)
             {
+                var user = userManager.FindById(User.Identity.GetUserId());
+                if (user == null || !user.IsCandidate)
+                {
+                    //Unable to find user or application, or unauthorized: return to start
+                    return RedirectToAction("Index", "Position", new { });
+                }
+
+                //Only accept PDF file types
+                if (applicationCreateViewModel.UseNewResume && (file == null
+                    || !ResumeController.IsValidContentType(file.ContentType)
+                    || file.ContentLength == 0))
+                {
+                    return View(applicationCreateViewModel);
+                }
+
                 var application = new Application
                 {
                     AppliedOn = DateTime.Now.Date,
-                    PositionId = applicationViewModel.PositionId,
-                    UserId = applicationViewModel.UserId,
-                    Resume = new Resume
+                    PositionId = applicationCreateViewModel.PositionId,
+                    UserId = applicationCreateViewModel.UserId
+                };
+
+                application.Resume = applicationCreateViewModel.UseNewResume
+                    ? new Resume
                     {
                         Document = ResumeController.GetDocumentFromFile(file),
-                        UserId = applicationViewModel.UserId
+                        UserId = applicationCreateViewModel.UserId
                     }
-                };
+                    : user.Resume;
 
                 context.Applications.Add(application);
                 context.SaveChanges();
 
                 return RedirectToAction("Details", new { id = application.Id });
             }
-            catch
-            {
-                return View();
-            }
+
+            return View(applicationCreateViewModel);
         }
 
         //
@@ -130,37 +135,34 @@ namespace Careers.Controllers
                 return RedirectToAction("Index", "Position", new { });
             }
 
-            return View(new Careers.Models.ApplicationViewModel(application, user));
+            return View(new Careers.Models.ApplicationEditViewModel(application, user));
         }
 
         //
         // POST: /Application/Edit/5
         [HttpPost]
-        public ActionResult Edit(int id, ApplicationViewModel applicationViewModel)
+        public ActionResult Edit(int id, ApplicationEditViewModel applicationEditViewModel)
         {
-            var application = context.Applications.SingleOrDefault(a => a.Id == id);
-            var user = userManager.FindById(User.Identity.GetUserId());
-
-            if (user == null
-                || application == null
-                || (application.UserId != user.Id && !user.IsEmployee))
+            if (ModelState.IsValid)
             {
-                //Unable to find user or application, or unauthorized: return to start
-                return RedirectToAction("Index", "Position", new { });
-            }
+                var application = context.Applications.SingleOrDefault(a => a.Id == id);
+                var user = userManager.FindById(User.Identity.GetUserId());
 
-            try
-            {
-                application.Status = applicationViewModel.ApplicationStatus;
+                if (user == null
+                    || application == null
+                    || (application.UserId != user.Id && !user.IsEmployee))
+                {
+                    //Unable to find user or application, or unauthorized: return to start
+                    return RedirectToAction("Index", "Position", new { });
+                }
 
+                application.Status = applicationEditViewModel.ApplicationStatus;
                 context.SaveChanges();
 
                 return RedirectToAction("Details", new { id = id });
             }
-            catch
-            {
-                return View();
-            }
+
+            return View(applicationEditViewModel);
         }
 
         //
@@ -178,18 +180,10 @@ namespace Careers.Controllers
                 return RedirectToAction("Index", "Position", new { });
             }
 
-            try
-            {
-                application.Status = ApplicationStatus.Removed;
+            application.Status = ApplicationStatus.Removed;
+            context.SaveChanges();
 
-                context.SaveChanges();
-
-                return RedirectToAction("Index");
-            }
-            catch
-            {
-                return View();
-            }
+            return RedirectToAction("Index");
         }
     }
 }

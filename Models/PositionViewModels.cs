@@ -4,79 +4,73 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Linq;
 using System.Web;
+using System.Web.Mvc;
 
 namespace Careers.Models
 {
     public class PositionListingViewModel
     {
-        private readonly User user;
-
         public PositionListingViewModel() { }
 
         public PositionListingViewModel(IQueryable<Position> positions, User user)
         {
-            this.user = user;
             this.Positions = positions.OrderBy(p => p.Id);
 
-            if (!CanViewClosedPositions)
+
+            if (user != null)
+            {
+                this.CanAddPosition = user.IsEmployee;
+                this.CanViewClosedPositions = user.IsEmployee;
+            }
+
+            if (!this.CanViewClosedPositions)
             {
                 this.Positions = this.Positions.Where(p => p.Status == PositionStatus.Open);
             }
         }
 
-        public IEnumerable<Position> Positions { get; private set; }
+        public IEnumerable<Position> Positions { get; set; }
 
         #region Privileges
 
-        public bool CanAddPosition
-        {
-            get
-            {
-                return user != null
-                    && user.IsEmployee;
-            }
-        }
+        public bool CanAddPosition { get; set; }
 
-        public bool CanViewClosedPositions
-        {
-            get
-            {
-                return user != null && user.IsEmployee;
-            }
-        }
+        public bool CanViewClosedPositions { get; set; }
 
         #endregion
     }
 
-    public class PositionViewModel
+    public class PositionCreateViewModel
     {
-        private readonly User user;
+        public PositionCreateViewModel() { }
 
-        public PositionViewModel() { }
+        #region Properties
 
-        public PositionViewModel(Position position, User user)
+        [Required]
+        [StringLength(255, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
+        [DataType(DataType.Text)]
+        [Display(Name = "Title")]
+        public string Title { get; set; }
+
+        [Required]
+        [DataType(DataType.MultilineText)]
+        [Display(Name = "Description")]
+        public string Description { get; set; }
+
+        #endregion
+    }
+
+    public class PositionEditViewModel
+    {
+        public PositionEditViewModel() { }
+
+        public PositionEditViewModel(Position position, User user)
         {
-            this.user = user;
             this.PositionId = position.Id;
+            this.OriginalTitle = position.Title;
             this.Title = position.Title;
             this.Description = position.Description;
             this.Status = position.Status;
-            this.Applications = position.Applications
-                .Where(a => a.Status != ApplicationStatus.Removed)
-                .OrderBy(a => a.AppliedOn)
-                .Select( a => new ApplicationListItemViewModel(a));
-
-            if (user != null)
-            {
-                var application = user.Applications.SingleOrDefault(a => a.PositionId == position.Id && a.Status != ApplicationStatus.Removed);
-
-                if (application != null)
-                {
-                    this.UserApplicationId = application.Id;
-                    this.UserAppliedOn = application.AppliedOn;
-                }
-            }
-            
         }
 
         #region Properties
@@ -85,6 +79,9 @@ namespace Careers.Models
         [DataType(DataType.Text)]
         [Display(Name = "ID")]
         public int PositionId { get; set; }
+
+        [HiddenInput]
+        public string OriginalTitle { get; set; }
 
         [Required]
         [StringLength(255, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
@@ -101,63 +98,77 @@ namespace Careers.Models
         [Display(Name = "Status")]
         public PositionStatus Status { get; set; }
 
-        public int UserApplicationId { get; private set; }
+        #endregion
+    }
 
-        public DateTime UserAppliedOn { get; private set; }
+    public class PositionDetailViewModel
+    {
+        public PositionDetailViewModel() { }
 
-        public IEnumerable<ApplicationListItemViewModel> Applications { get; private set; }
+        public PositionDetailViewModel(Position position, User user)
+        {
+            this.PositionId = position.Id;
+            this.Title = position.Title;
+            this.Description = position.Description;
+            this.Status = position.Status;
 
-        public ApplicationStatus ApplicationStatusFilter { get; set; }
+            this.Applications = position.Applications
+                .Where(a => a.Status != ApplicationStatus.Removed)
+                .OrderBy(a => a.AppliedOn)
+                .Select( a => new ApplicationListItemViewModel(a));
+
+            if (user != null)
+            {
+                var application = user.Applications.SingleOrDefault(a => a.PositionId == position.Id && a.Status != ApplicationStatus.Removed);
+
+                if (application != null)
+                {
+                    this.UserApplicationId = application.Id;
+                    this.UserAppliedOn = application.AppliedOn;
+                }
+
+                this.CanModifyPosition = user.IsEmployee;
+                this.CanViewApplications = user.IsEmployee;
+                this.CanApplyToPosition = user.IsCandidate && !user.Applications.Any(a => a.PositionId == this.PositionId && a.Status != ApplicationStatus.Removed);
+                this.CanRemoveApplication = user.IsCandidate && user.Applications.Any(a => a.PositionId == this.PositionId && a.Status != ApplicationStatus.Removed);
+                this.HasAppliedToPosition = user.IsCandidate && user.Applications.Any(a => a.PositionId == this.PositionId && a.Status != ApplicationStatus.Removed);
+            }
+            
+        }
+
+        #region Properties
+
+        [Display(Name = "ID")]
+        public int PositionId { get; set; }
+
+        [Display(Name = "Title")]
+        public string Title { get; set; }
+
+        [Display(Name = "Description")]
+        public string Description { get; set; }
+
+        [Display(Name = "Status")]
+        public PositionStatus Status { get; set; }
+
+        public int UserApplicationId { get; set; }
+
+        public DateTime UserAppliedOn { get; set; }
+
+        public IEnumerable<ApplicationListItemViewModel> Applications { get; set; }
 
         #endregion
 
         #region Privileges
 
-        public bool CanModifyPosition
-        {
-            get
-            {
-                return user != null && user.IsEmployee;
-            }
-        }
+        public bool CanModifyPosition { get; set; }
 
-        public bool CanViewApplications
-        {
-            get
-            {
-                return user != null && user.IsEmployee;
-            }
-        }
+        public bool CanViewApplications { get; set; }
 
-        public bool CanApplyToPosition
-        {
-            get
-            {
-                return user == null
-                    || (user.IsCandidate
-                    && !user.Applications.Any(a => a.PositionId == this.PositionId && a.Status != ApplicationStatus.Removed));
-            }
-        }
+        public bool CanApplyToPosition { get; set; }
 
-        public bool CanRemoveApplication
-        {
-            get
-            {
-                return user != null
-                    && user.IsCandidate
-                    && user.Applications.Any(a => a.PositionId == this.PositionId && a.Status != ApplicationStatus.Removed);
-            }
-        }
+        public bool CanRemoveApplication { get; set; }
 
-        public bool HasAppliedToPosition
-        {
-            get
-            {
-                return user != null
-                    && user.IsCandidate
-                    && user.Applications.Any(a => a.PositionId == this.PositionId && a.Status != ApplicationStatus.Removed);
-            }
-        }
+        public bool HasAppliedToPosition { get; set; }
 
         #endregion
     }

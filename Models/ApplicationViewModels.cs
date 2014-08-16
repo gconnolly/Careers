@@ -10,19 +10,16 @@ namespace Careers.Models
 {
     public class ApplicationListingViewModel
     {
-        private readonly User user;
-
         public ApplicationListingViewModel() { }
 
         public ApplicationListingViewModel(IQueryable<Application> applications, User user)
         {
-            this.user = user;
             this.Applications = applications
                                     .Where(a => a.UserId == user.Id && a.Status != ApplicationStatus.Removed)
                                     .OrderBy(a => a.AppliedOn);
         }
 
-        public IEnumerable<Application> Applications { get; private set; }
+        public IEnumerable<Application> Applications { get; set; }
     }
 
     public class ApplicationListItemViewModel
@@ -50,43 +47,40 @@ namespace Careers.Models
         #endregion
     }
 
-    public class ApplicationViewModel
+    public class ApplicationEditViewModel
     {
-        private readonly User user;
+        public ApplicationEditViewModel() { }
 
-        public ApplicationViewModel() { }
-
-        public ApplicationViewModel(Application application, User user)
+        public ApplicationEditViewModel(Application application, User user)
         {
-            this.user = user;
             this.ApplicationId = application.Id;
-            this.PositionId = application.Position.Id;
-            this.ResumeId = application.ResumeId;
-            this.UserId = application.User.Id;
-            this.UserName = application.User.FullName;
-            this.EmailAddress = application.User.EmailAddress;
             this.PositionTitle = application.Position.Title;
-            this.ApplicationStatus = application.Status;
-            this.PositionStatus = application.Position.Status;
+            this.FullName = application.User.FullName;
+            this.EmailAddress = application.User.EmailAddress;
             this.AppliedOn = application.AppliedOn;
+            this.PositionStatus = application.Position.Status;
+            this.ApplicationStatus = application.Status;
         }
 
         #region Properties
 
+        [HiddenInput]
+        public int ApplicationId { get; set; }
+
         [Required]
         [DataType(DataType.Text)]
         [Display(Name = "Candidate Name")]
-        public string UserName { get; private set; }
+        public string FullName { get; set; }
 
         [Required]
         [DataType(DataType.EmailAddress)]
         [Display(Name = "Email Address")]
-        public string EmailAddress { get; private set; }
+        public string EmailAddress { get; set; }
 
         [Required]
         [DataType(DataType.Text)]
         [Display(Name = "Position")]
-        public string PositionTitle { get; private set; }
+        public string PositionTitle { get; set; }
 
         [Required]
         [Display(Name = "Application Status")]
@@ -99,7 +93,65 @@ namespace Careers.Models
         [Required]
         [DataType(DataType.Date)]
         [Display(Name = "Applied On")]
-        public DateTime AppliedOn { get; private set; }
+        public DateTime AppliedOn { get; set; }
+
+
+        #endregion
+    }
+
+    public class ApplicationDetailViewModel
+    {
+        public ApplicationDetailViewModel() { }
+
+        public ApplicationDetailViewModel(Application application, User user)
+        {
+            this.ApplicationId = application.Id;
+            this.ResumeId = application.ResumeId;
+            this.FullName = application.User.FullName;
+            this.EmailAddress = application.User.EmailAddress;
+            this.PositionTitle = application.Position.Title;
+            this.ApplicationStatus = application.Status;
+            this.PositionStatus = application.Position.Status;
+            this.AppliedOn = application.AppliedOn;
+
+            if(user != null)
+            {
+                this.IsDefaultResume = user.DefaultResumeId == application.ResumeId;
+                this.CanSetDefaultResume = application.Resume.UserId == user.Id && user.DefaultResumeId != application.ResumeId;
+                this.CanViewEditApplicationStatus = user.IsEmployee;
+                this.CanRemoveApplication = user.IsCandidate && user.Id == application.UserId;
+            }
+        }
+
+        #region Properties
+
+        [Required]
+        [DataType(DataType.Text)]
+        [Display(Name = "Candidate Name")]
+        public string FullName { get; set; }
+
+        [Required]
+        [DataType(DataType.EmailAddress)]
+        [Display(Name = "Email Address")]
+        public string EmailAddress { get; set; }
+
+        [Required]
+        [DataType(DataType.Text)]
+        [Display(Name = "Position")]
+        public string PositionTitle { get; set; }
+
+        [Required]
+        [Display(Name = "Application Status")]
+        public ApplicationStatus ApplicationStatus { get; set; }
+
+        [Required]
+        [Display(Name = "Position Status")]
+        public PositionStatus PositionStatus { get; set; }
+
+        [Required]
+        [DataType(DataType.Date)]
+        [Display(Name = "Applied On")]
+        public DateTime AppliedOn { get; set; }
 
         [Required]
         [DataType(DataType.Date)]
@@ -112,37 +164,83 @@ namespace Careers.Models
             }
         }
 
-        public int UserId { get; set; }
+        [HiddenInput]
+        public int ResumeId { get; set; }
 
-        public int PositionId { get; set; }
+        [HiddenInput]
+        public int ApplicationId { get; set; }
 
-        public int ResumeId { get; private set; }
+        [HiddenInput]
+        public bool IsDefaultResume { get; set; }
 
-        public int ApplicationId { get; private set; }
+        [HiddenInput]
+        public bool CanSetDefaultResume { get; set; }
 
         #endregion
         
         #region Privileges
 
-        public bool CanViewEditApplicationStatus
-        {
-            get
-            {
-                return user != null
-                    && user.IsEmployee;
-            }
-        }
+        [HiddenInput]
+        public bool CanViewEditApplicationStatus { get; set; }
 
-        public bool CanRemoveApplication
-        {
-            get
-            {
-                return user != null
-                    && user.IsCandidate
-                    && user.Id == UserId;
-            }
-        }
+        [HiddenInput]
+        public bool CanRemoveApplication { get; set; }
 
         #endregion
+    }
+
+
+    public class ApplicationCreateViewModel
+    {
+        public ApplicationCreateViewModel() { }
+
+        public ApplicationCreateViewModel(Position position, User user)
+        {
+            this.FullName = user.FullName;
+            this.EmailAddress = user.EmailAddress;
+            this.PositionTitle = position.Title;
+            this.PositionId = position.Id;
+            this.UserId = user.Id;
+
+            this.UserDefaultResumeId = user.DefaultResumeId;
+            this.UseNewResume = true;
+            this.HasDefaultResume = user.DefaultResumeId != null;
+        }
+
+        #region Properties
+
+        [HiddenInput]
+        public int PositionId { get; set; }
+
+        [HiddenInput]
+        public int UserId { get; set; }
+
+        [Required]
+        [DataType(DataType.Text)]
+        [Display(Name = "Candidate Name")]
+        public string FullName { get; set; }
+
+        [Required]
+        [DataType(DataType.EmailAddress)]
+        [Display(Name = "Email Address")]
+        public string EmailAddress { get; set; }
+
+        [Required]
+        [DataType(DataType.Text)]
+        [Display(Name = "Position")]
+        public string PositionTitle { get; set; }
+
+        [HiddenInput]
+        public int? UserDefaultResumeId { get; set; }
+
+        [HiddenInput]
+        public bool UseNewResume { get; set; }
+
+        [HiddenInput]
+        public bool HasDefaultResume { get; set; }
+
+        #endregion
+
+        
     }
 }

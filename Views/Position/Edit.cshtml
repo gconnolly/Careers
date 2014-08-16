@@ -1,20 +1,22 @@
-﻿@model Careers.Models.PositionViewModel
+﻿@model Careers.Models.PositionEditViewModel
 
 @{
     ViewBag.Title = "Edit Position";
 }
 
-<h2>Edit @Model.Title</h2>
+<h2>Edit @Model.OriginalTitle</h2>
 <hr />
 
 <div class="row">
     <div class="col-md-12">
         @using (Html.BeginForm("Edit", "Position", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
         {
+            @Html.ValidationSummary()
             <div class="form-group">
                 @Html.LabelFor(m => m.PositionId, new { @class = "col-md-2 control-label" })
                 <div class="col-md-10">
                     <p class="form-control-static">@Model.PositionId</p>
+                    @Html.HiddenFor( m => m.PositionId )
                 </div>
             </div>
             <div class="form-group">
@@ -35,6 +37,7 @@
                     @Html.EnumDropDownListFor(m => m.Status, new { @class = "form-control" })
                 </div>
             </div>
+            @Html.HiddenFor(m => m.OriginalTitle)
             <div class="form-group">
                 <div class="col-md-offset-2 col-md-10">
                     <input type="submit" value="Update" class="btn btn-default" />

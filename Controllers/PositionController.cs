@@ -50,14 +50,13 @@ namespace Careers.Models
                 return RedirectToAction("Index", "Position", new { });
             }
 
-            return View(new PositionViewModel(position, user));
+            return View(new PositionDetailViewModel(position, user));
         }
 
         //
         // GET: /Position/Create
         public ActionResult Create()
         {
-            var position = new Position();
             var user = userManager.FindById(User.Identity.GetUserId());
             if (user == null || !user.IsEmployee)
             {
@@ -65,27 +64,27 @@ namespace Careers.Models
                 return RedirectToAction("Index", "Position", new { });
             }
 
-            return View(new PositionViewModel(position, user));
+            return View(new PositionCreateViewModel());
         }
 
         //
         // POST: /Position/Create
         [HttpPost]
-        public ActionResult Create(PositionViewModel positionViewModel)
+        public ActionResult Create(PositionCreateViewModel positionCreateViewModel)
         {
-            var user = userManager.FindById(User.Identity.GetUserId());
-            if (user == null || !user.IsEmployee)
+            if (ModelState.IsValid)
             {
-                //Unable to find user or position, or unauthorized: return to start
-                return RedirectToAction("Index", "Position", new { });
-            }
+                var user = userManager.FindById(User.Identity.GetUserId());
+                if (user == null || !user.IsEmployee)
+                {
+                    //Unable to find user or position, or unauthorized: return to start
+                    return RedirectToAction("Index", "Position", new { });
+                }
 
-            try
-            {
                 context.Positions.Add(new Position
                 {
-                    Title = positionViewModel.Title,
-                    Description = positionViewModel.Description,
+                    Title = positionCreateViewModel.Title,
+                    Description = positionCreateViewModel.Description,
                     Status = PositionStatus.Open,
                 });
 
@@ -93,10 +92,8 @@ namespace Careers.Models
 
                 return RedirectToAction("Index");
             }
-            catch
-            {
-                return View();
-            }
+
+            return View(positionCreateViewModel);
         }
 
         //
@@ -104,25 +101,6 @@ namespace Careers.Models
         public ActionResult Edit(int id)
         {
             var position = context.Positions.SingleOrDefault(p => p.Id == id);
-            var user = userManager.FindById(User.Identity.GetUserId());
-            if (user == null 
-                || position == null
-                || !user.IsEmployee)
-            {
-                //Unable to find user or position, or unauthorized: return to start
-                return RedirectToAction("Index", "Position", new { });
-            }
-
-
-            return View(new PositionViewModel(position, user));
-        }
-
-        //
-        // POST: /Position/Edit/5
-        [HttpPost]
-        public ActionResult Edit(int id, PositionViewModel positionViewModel)
-        {
-            var position = context.Positions.Single(p => p.Id == id);
             var user = userManager.FindById(User.Identity.GetUserId());
             if (user == null
                 || position == null
@@ -132,20 +110,37 @@ namespace Careers.Models
                 return RedirectToAction("Index", "Position", new { });
             }
 
-            try
+
+            return View(new PositionEditViewModel(position, user));
+        }
+
+        //
+        // POST: /Position/Edit/5
+        [HttpPost]
+        public ActionResult Edit(int id, PositionEditViewModel positionEditViewModel)
+        {
+            if (ModelState.IsValid)
             {
-                position.Description = positionViewModel.Description;
-                position.Title = positionViewModel.Title;
-                position.Status = positionViewModel.Status;
+                var position = context.Positions.Single(p => p.Id == id);
+                var user = userManager.FindById(User.Identity.GetUserId());
+                if (user == null
+                    || position == null
+                    || !user.IsEmployee)
+                {
+                    //Unable to find user or position, or unauthorized: return to start
+                    return RedirectToAction("Index", "Position", new { });
+                }
+
+                position.Description = positionEditViewModel.Description;
+                position.Title = positionEditViewModel.Title;
+                position.Status = positionEditViewModel.Status;
 
                 context.SaveChanges();
 
                 return RedirectToAction("Index");
             }
-            catch
-            {
-                return View();
-            }
+
+            return View(positionEditViewModel);
         }
     }
 }
