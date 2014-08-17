@@ -133,6 +133,10 @@ namespace Careers.Models
                 this.CanRemoveApplication = user.IsCandidate && user.Applications.Any(a => a.PositionId == this.PositionId && a.Status != ApplicationStatus.Removed);
                 this.HasAppliedToPosition = user.IsCandidate && user.Applications.Any(a => a.PositionId == this.PositionId && a.Status != ApplicationStatus.Removed);
             }
+            else
+            {
+                this.CanApplyToPosition = true;
+            }
             
         }
 

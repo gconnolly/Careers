@@ -81,16 +81,18 @@ namespace Careers.Models
                     return RedirectToAction("Index", "Position", new { });
                 }
 
-                context.Positions.Add(new Position
+                var position = new Position
                 {
                     Title = positionCreateViewModel.Title,
                     Description = positionCreateViewModel.Description,
                     Status = PositionStatus.Open,
-                });
+                };
+
+                context.Positions.Add(position);
 
                 context.SaveChanges();
 
-                return RedirectToAction("Index");
+                return RedirectToAction("Details", "Position", new { id = position.Id });
             }
 
             return View(positionCreateViewModel);
@@ -137,7 +139,7 @@ namespace Careers.Models
 
                 context.SaveChanges();
 
-                return RedirectToAction("Index");
+                return RedirectToAction("Details", "Position", new { id = position.Id });
             }
 
             return View(positionEditViewModel);
